@@ -100,8 +100,8 @@ class MyDialog(QDialog):
         
 
     def onAccept(self):
-        global tinyfieldcontent
-        tinyfieldcontent = self.__execJavaScript("tinyMCE.activeEditor.getContent();")
+        global editedfieldcontent
+        editedfieldcontent = self.__execJavaScript(self.jsSavecommand)
         self.accept() 
 
 
@@ -137,10 +137,10 @@ def _onUpdateField(self):
     try:   
         note = mw.col.getNote(self.nid)
     except:   # new note
-        self.note.fields[self.myfield] = tinyfieldcontent
+        self.note.fields[self.myfield] = editedfieldcontent
         self.note.flush()
     else:
-        note.fields[self.myfield] = tinyfieldcontent
+        note.fields[self.myfield] = editedfieldcontent
         note.flush()
         mw.requireReset()
         mw.reset()
