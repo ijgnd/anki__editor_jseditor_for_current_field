@@ -56,6 +56,7 @@ tinymce
 didn't work immediatly. I gave up because a separate view without the need to start tinymce might
 be better.
 - styling the editor with css doesn't work
+- footnotes? this doesn't work https://github.com/rainywalker/footNotes/
 """
 
 
