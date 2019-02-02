@@ -7,10 +7,11 @@ from aqt import mw
 from aqt.qt import *
 from anki.hooks import addHook, wrap
 from aqt.utils import showInfo
+from aqt.editor import Editor
 
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QShortcut
 from PyQt5.QtCore import Qt, QMetaObject
 
 config = mw.addonManager.getConfig(__name__)
@@ -30,30 +31,18 @@ doesn't work.
 ckeditor4 doesn't work:  I wanted to see what it offers but the edtior doesn't load. So
 I didn't even come to implementing a save command. 
 
-for tinymce the codemirror source code view plugin (https://github.com/christiaan/tinymce-codemirror) 
+tinymce
+- the codemirror source code view plugin (https://github.com/christiaan/tinymce-codemirror) 
 didn't work immediatly. I gave up because a separate view without the need to start tinymce might
 be better.
+- styling the editor with css doesn't work
 """
 
 
-editorfolders = ["ckeditor5-build-decoupled-document__v11.2.0","tinymce492","ckeditor4_11_1_full"]
-
-def copy_editorfolders_to_media_folder():
-    addondir = os.path.join(os.path.dirname(__file__))
-    media_dir = mw.col.media.dir()
-    for f in editorfolders:
-        src = os.path.join(addondir,f)
-        dest = os.path.join(media_dir,f)
-        if not os.path.exists(dest):
-            shutil.copytree(src, dest)
-
-addHook('profileLoaded', copy_editorfolders_to_media_folder)
-
-
-
 class MyDialog(QDialog):
-    def __init__(self, parent, instance, html, field, windowtitle, jsSavecommand):
+    def __init__(self, parent, instance, field, temphtmlfile, windowtitle, jsSavecommand):
         super(MyDialog, self).__init__(parent)
+
         self.instance = instance
         self.field = field
         self.nid = instance.note.id
@@ -81,91 +70,145 @@ class MyDialog(QDialog):
         acceptShortcut = QShortcut(QKeySequence("Ctrl+Return"), self)
         acceptShortcut.activated.connect(self.onAccept)
 
-        #self.web.setHtml(html)
-        #workaround so that media files from collection.media are shown
-        #addondir = os.path.join(os.path.dirname(__file__))
-        #tfile = os.path.join(addondir,'_temp_tiny.html')
-        media_dir = mw.col.media.dir()
-        tfile = os.path.join(media_dir,'_temp_external_editor.html')
-        #io.open is necessary for windows 10 1809/Anki 2.1.8 - otherwise umlaute don't work
-        with io.open(tfile,'w',encoding='utf-8') as f:
-            f.write(html)
-        url = pathlib.Path(tfile).as_uri()
-       
         self.web.loadFinished.connect(self.load_finished)
-        self.web.load(QUrl(url))
+        self.web.load(QUrl(temphtmlfileUrl))     
 
 
     def load_finished(self, ok):
         self.show() 
         self.web.setFocus()
-
+        
 
     def onAccept(self):
-        self.web.page().runJavaScript(self.jsSavecommand, self.store_value)
-        #time.sleep(0.2)
+        global tinyfieldcontent
+        tinyfieldcontent = self.__execJavaScript("tinyMCE.activeEditor.getContent();")
         self.accept() 
 
 
-    def store_value(self, param):
-        #make sure that if in the browser another note is
-        #opened while the js-edit window is open the correct
-        #note gets updated upon closing
-        #showInfo(param)   # works
-        try:   
-            note = mw.col.getNote(self.nid)
-        except:   # new note
-            self.instance.note.fields[self.field] = param
-            #time.sleep(0.1)
-            self.instance.note.flush()
-            #time.sleep(0.1)
-        else:
-            note.fields[self.field] = param
-            note.flush()
-            mw.requireReset()
-            mw.reset()
-        self.instance.loadNote(focusTo=self.field)
+    #via https://riverbankcomputing.com/pipermail/pyqt/2016-May/037449.html
+    #https://github.com/pycom/EricShort/blob/master/UI/Previewers/PreviewerHTML.py   #gplv3
+    def __execJavaScript(self, script):
+        """
+        Private function to execute a JavaScript function Synchroneously.
+        
+        @param script JavaScript script source to be executed
+        @type str
+        @return result of the script
+        @rtype depending upon script result
+        """
+        from PyQt5.QtCore import QEventLoop
+        loop = QEventLoop()
+        resultDict = {"res": None}
+        
+        def resultCallback(res, resDict=resultDict):
+            if loop and loop.isRunning():
+                resDict["res"] = res
+                loop.quit()
+        
+        self.web.page().runJavaScript(
+            script, resultCallback)
+        
+        loop.exec_()
+        return resultDict["res"]
 
 
-def start_dialog(self,shellfilename,windowtitle,jsSavecommand):
-    field = self.currentField
-    contents = self.note.fields[field]
+
+def _onUpdateField(self):
+    try:   
+        note = mw.col.getNote(self.nid)
+    except:   # new note
+        self.note.fields[self.myfield] = tinyfieldcontent
+        self.note.flush()
+    else:
+        note.fields[self.myfield] = tinyfieldcontent
+        note.flush()
+        mw.requireReset()
+        mw.reset()
+    self.loadNote(focusTo=self.myfield)
+Editor._onUpdateField = _onUpdateField
+
+
+def on_dialog_finished(self,status):
+    if status:
+        self.saveNow(lambda: self._onUpdateField())
+Editor.on_dialog_finished = on_dialog_finished
+
+
+addondir = os.path.join(os.path.dirname(__file__))
+temphtmlfile = os.path.join(addondir,'temp.html')
+temphtmlfileUrl = pathlib.Path(temphtmlfile).as_uri()
+
+def _start_dialog(self,field,templatecontent, windowtitle, jsSavecommand):
+    self.fieldcontents = self.note.fields[field]
     ##remove StartFragment/Endfragment so that ckeditor works
-    contents = contents.replace("<!--StartFragment-->","")
-    contents = contents.replace("<!--EndFragment-->","")
-    ##leftover from initial try when tinymce was in bin/web
-    #js = ""
-    #for l in ["tinymce/tinymce.min.js", "jquery.js"]:
-    #    js += mw.web.bundledScript(l) + '\n'
-    path = os.path.dirname(os.path.realpath(__file__))
-    htmlfile = os.path.join(path,shellfilename)
-    with io.open(htmlfile,'r',encoding='utf-8') as f:
-        h = f.read()
-    # html = h % (js, contents)
-    html = h % (contents)
-    d = MyDialog(None, self, html, field,windowtitle,jsSavecommand)
-    d.show() 
+    self.fieldcontents = self.fieldcontents.replace("<!--StartFragment-->","")
+    self.fieldcontents = self.fieldcontents.replace("<!--EndFragment-->","")
+    temporary = templatecontent % (self.fieldcontents)
+    with io.open(temphtmlfile,'w',encoding='utf-8') as f:
+         f.write(temporary)
+    d = MyDialog(None, self, field, temphtmlfile, windowtitle, jsSavecommand)
+    #exec_() doesn't work - tinymce isn't loaded = blocked
+    #finished.connect via https://stackoverflow.com/questions/39638749/pyqt4-why-does-qdialog-returns-from-exec-when-setvisiblefalse
+    d.finished.connect(self.on_dialog_finished)
+    d.setModal(True)
+    d.show()
+Editor._start_dialog = _start_dialog
+
+
+def start_dialog(self,templatecontent, windowtitle, jsSavecommand):
+    self.myfield = self.currentField
+    self.saveNow(lambda: self._start_dialog(self.myfield, templatecontent, windowtitle, jsSavecommand))
+Editor.start_dialog = start_dialog
+
+
+wyE = {
+    'tinymce':{
+        'templatefile': "template_tiny.html",
+        'windowtitle': 'Anki - edit current field in TinyMCE',
+        'jsSaveCommand': "tinyMCE.activeEditor.getContent();"
+    },
+    'ckeditor5': {
+        'templatefile': "template_ck5.html",
+        'windowtitle': 'Anki - edit current field in ckEditor5',
+        'jsSaveCommand': "myeditor.getData();"
+    },
+    'ckeditor4': {
+        'templatefile': "template_ck4.html",
+        'windowtitle': 'Anki - edit current field in ckEditor4',
+        'jsSaveCommand': "myeditor.getData();"
+    }
+}
+
+def readfile(file):
+    filefullpath = os.path.join(addondir, file)
+    with io.open(filefullpath,'r',encoding='utf-8') as f:
+        return f.read()
+
+
+#loading file contents only once might be faster
+for k,v in wyE.items():
+    wyE[k]['templatecontents'] = readfile(v['templatefile'])
 
 
 def tiny_start(self):
-    htmlfile = "shell_tiny.html"
-    windowtitle = 'Anki - edit current field in TinyMCE'
-    jsSavecommand = "tinyMCE.activeEditor.getContent();"
-    start_dialog(self,htmlfile,windowtitle,jsSavecommand)
+    profilename = mw.pm.name
+    replacement = """document_base_url: '../../../{}/collection.media/', """.format(profilename)
+    templatecontent = wyE['tinymce']['templatecontents'].replace("""document_base_url: '',""", replacement)                    
+    windowtitle = wyE['tinymce']['windowtitle']
+    jsSavecommand = wyE['tinymce']['jsSaveCommand']
+    self.start_dialog(templatecontent, windowtitle, jsSavecommand)
+
 
 
 def ck5_start(self):
-    htmlfile = "shell_ck5.html"
-    windowtitle = 'Anki - edit current field in ckEditor5'
-    jsSavecommand = "myeditor.getData();"
-    start_dialog(self,htmlfile,windowtitle,jsSavecommand)
+    #as far as I see the equivalent to tinymce's document_base_url in tincymce4 is baseHref,
+    # https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-baseHref
+    # baseHref is not in ckeditor5 as of 2019-01, see  https://github.com/ckeditor/ckeditor5/issues/665
+    pass
 
 
 def ck4_start(self):
-    htmlfile = "shell_ck4.html"
-    windowtitle = 'Anki - edit current field in ckEditor4'
-    jsSavecommand = "myeditor.getData();"
-    start_dialog(self,htmlfile,windowtitle,jsSavecommand)
+    pass
 
 
 def keystr(k):
