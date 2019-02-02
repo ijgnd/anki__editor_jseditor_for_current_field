@@ -60,14 +60,10 @@ be better.
 
 
 class MyDialog(QDialog):
-    def __init__(self, parent, instance, field, temphtmlfile, windowtitle, jsSavecommand):
+    def __init__(self, parent, instance, windowtitle, jsSavecommand):
         super(MyDialog, self).__init__(parent)
 
-        self.instance = instance
-        self.field = field
-        self.nid = instance.note.id
         self.jsSavecommand = jsSavecommand
-
         self.setWindowTitle(windowtitle)
         self.resize(790,1100)
 
@@ -166,7 +162,7 @@ def _start_dialog(self,field,templatecontent, windowtitle, jsSavecommand):
     temporary = templatecontent % (self.fieldcontents)
     with io.open(temphtmlfile,'w',encoding='utf-8') as f:
          f.write(temporary)
-    d = MyDialog(None, self, field, temphtmlfile, windowtitle, jsSavecommand)
+    d = MyDialog(None, self, windowtitle, jsSavecommand)
     #exec_() doesn't work - tinymce isn't loaded = blocked
     #finished.connect via https://stackoverflow.com/questions/39638749/pyqt4-why-does-qdialog-returns-from-exec-when-setvisiblefalse
     d.finished.connect(self.on_dialog_finished)
