@@ -1,5 +1,25 @@
 # -*- coding: utf-8 -*-
-# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+"""
+anki-addon: open field contents in WYSIWYG-Editor(like TinyMCE)
+Copyright (C) 2018 ignd
+with code form
+Copyright (c) 2014 - 2016 Detlev Offenbach <detlev@die-offenbachs.de> (the function __execJavaScript)
+Copyright: Damien Elmes <anki@ichi2.net>, https://github.com/dae/anki/blob/master/aqt/editor.py
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
 
 import pathlib, os, shutil, io, time
 
@@ -86,7 +106,7 @@ class MyDialog(QDialog):
 
 
     #via https://riverbankcomputing.com/pipermail/pyqt/2016-May/037449.html
-    #https://github.com/pycom/EricShort/blob/master/UI/Previewers/PreviewerHTML.py   #gplv3
+    #https://github.com/pycom/EricShort/blob/master/UI/Previewers/PreviewerHTML.py   
     def __execJavaScript(self, script):
         """
         Private function to execute a JavaScript function Synchroneously.
