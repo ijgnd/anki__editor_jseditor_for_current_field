@@ -48,8 +48,11 @@ a workaround to set the contents of ckeditor after loading with something like
 self.web.page().runJavaScript('myeditor.setData( ' + '`' + self.contents + '`' + ');')
 doesn't work.
 
-ckeditor4 doesn't work:  I wanted to see what it offers but the edtior doesn't load. So
+ckeditor4 
+- doesn't work:  I wanted to see what it offers but the edtior doesn't load. So
 I didn't even come to implementing a save command. 
+- maybe footnotes plugin - https://github.com/andykirk/CKEditorFootnotes /
+https://ckeditor.com/cke4/addon/footnotes ?
 
 tinymce
 - the codemirror source code view plugin (https://github.com/christiaan/tinymce-codemirror) 
