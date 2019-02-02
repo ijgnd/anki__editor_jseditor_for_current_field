@@ -60,7 +60,7 @@ be better.
 
 
 class MyDialog(QDialog):
-    def __init__(self, parent, instance, windowtitle, jsSavecommand):
+    def __init__(self, parent, windowtitle, jsSavecommand):
         super(MyDialog, self).__init__(parent)
 
         self.jsSavecommand = jsSavecommand
