@@ -129,7 +129,7 @@ class MyDialog(QDialog):
 
 
 
-def _onUpdateField(self):
+def _onWYSIWYGUpdateField(self):
     try:   
         note = mw.col.getNote(self.nid)
     except:   # new note
@@ -141,20 +141,20 @@ def _onUpdateField(self):
         mw.requireReset()
         mw.reset()
     self.loadNote(focusTo=self.myfield)
-Editor._onUpdateField = _onUpdateField
+Editor._onWYSIWYGUpdateField = _onWYSIWYGUpdateField
 
 
-def on_dialog_finished(self,status):
+def on_WYSIWYGdialog_finished(self,status):
     if status:
-        self.saveNow(lambda: self._onUpdateField())
-Editor.on_dialog_finished = on_dialog_finished
+        self.saveNow(lambda: self._onWYSIWYGUpdateField())
+Editor.on_WYSIWYGdialog_finished = on_WYSIWYGdialog_finished
 
 
 addondir = os.path.join(os.path.dirname(__file__))
 temphtmlfile = os.path.join(addondir,'temp.html')
 temphtmlfileUrl = pathlib.Path(temphtmlfile).as_uri()
 
-def _start_dialog(self,field,templatecontent, windowtitle, jsSavecommand):
+def _wysiwyg_dialog(self,field,templatecontent, windowtitle, jsSavecommand):
     self.fieldcontents = self.note.fields[field]
     ##remove StartFragment/Endfragment so that ckeditor works
     self.fieldcontents = self.fieldcontents.replace("<!--StartFragment-->","")
@@ -165,16 +165,16 @@ def _start_dialog(self,field,templatecontent, windowtitle, jsSavecommand):
     d = MyDialog(None, windowtitle, jsSavecommand)
     #exec_() doesn't work - tinymce isn't loaded = blocked
     #finished.connect via https://stackoverflow.com/questions/39638749/pyqt4-why-does-qdialog-returns-from-exec-when-setvisiblefalse
-    d.finished.connect(self.on_dialog_finished)
+    d.finished.connect(self.on_WYSIWYGdialog_finished)
     d.setModal(True)
     d.show()
-Editor._start_dialog = _start_dialog
+Editor._wysiwyg_dialog = _wysiwyg_dialog
 
 
-def start_dialog(self,templatecontent, windowtitle, jsSavecommand):
+def wysiwyg_dialog(self,templatecontent, windowtitle, jsSavecommand):
     self.myfield = self.currentField
-    self.saveNow(lambda: self._start_dialog(self.myfield, templatecontent, windowtitle, jsSavecommand))
-Editor.start_dialog = start_dialog
+    self.saveNow(lambda: self._wysiwyg_dialog(self.myfield, templatecontent, windowtitle, jsSavecommand))
+Editor.wysiwyg_dialog = wysiwyg_dialog
 
 
 wyE = {
@@ -212,7 +212,7 @@ def tiny_start(self):
     templatecontent = wyE['tinymce']['templatecontents'].replace("""document_base_url: '',""", replacement)                    
     windowtitle = wyE['tinymce']['windowtitle']
     jsSavecommand = wyE['tinymce']['jsSaveCommand']
-    self.start_dialog(templatecontent, windowtitle, jsSavecommand)
+    self.wysiwyg_dialog(templatecontent, windowtitle, jsSavecommand)
 
 
 
