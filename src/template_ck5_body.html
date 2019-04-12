@@ -1,17 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Anki - Edit current field in ckEditor</title>
-    <script src="ckeditor5-build-decoupled-document__v11.2.0/ckeditor.js"></script>
-    <style>
+    <script src="%s"></script>
+    <style scoped>
         /* https://stackoverflow.com/questions/46559354/how-to-set-the-height-of-ckeditor-5-classic-editor */
         .ck-editor__editable {
             height:100vh;
         }
     </style>
-</head>
-<body>
+
+
     <!-- https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editorconfig-EditorConfig.html -->
     <!-- The toolbar will be rendered in this container. -->
     <div id="toolbar-container"></div>
@@ -55,5 +50,3 @@
                 console.error( error );
             } );
     </script>
-</body>
-</html>

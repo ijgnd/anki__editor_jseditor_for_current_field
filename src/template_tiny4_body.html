@@ -1,0 +1,267 @@
+        <script src="%s"></script>
+        <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+        <script>
+            var myfontsize = %s;
+    
+            tinymce.init({
+            selector: '.wysiwyg',
+            auto_focus: 'focusme',
+            document_base_url: '../../../',
+            body_class: 'bodyclass',
+            content_css: 'tinymce_custom.css',
+            visual : false,
+            //height : "850",
+            theme: 'modern',
+            plugins: [
+                //'anchor',                // anchor/bookmark toolbarbutton that inserts anchor at cursor
+                //'advlist',               // https://www.tiny.cloud/docs/plugins/advlist/
+                'autolink',                // format links as hyperlinks
+                'charmap',                 // select unicode characters from window
+                'code',                    // view source code
+                //'codemirror',              // https://github.com/christiaan/tinymce-codemirror
+                'codesample',              // insert syntax color highlighted code 
+                //'colorpicker',
+                'textcolor colorpicker',   // https://www.tiny.cloud/docs/plugins/colorpicker/ 
+                'contextmenu',             // add contextmenu
+                //'footnotes',             // doesn't work, NON-FREE (because no licsense in the repo), https://github.com/rainywalker/footNotes
+                //'fullpage',              // adds head/body tags, see https://stackoverflow.com/a/19209259
+                'fullscreen',              // maximize tinymce to window https://www.tiny.cloud/docs/plugins/fullscreen/
+                'help',                    // show help menu
+                'hr',                      // insert horizontal rule button
+                'image',                   // insert image button
+                'imagetools',              // contextual editing toolbar to images in editor 
+                //'importcss',             // ability to autoimport CSS classes from CSS file specified in content_css configuration setting
+                //'insertdatetime',
+                //'layer',                 // only works on some browsers and will probably be removed in future
+                //'legacyoutput',          // legacy elements such as b, i, u - useful if TinyMCE is in HTML mail client 
+                'link',                    // add hyperlinks
+                //'linkchecker',           // premium plugin
+                'lists',                   // add numbered and bulleted lists
+                'media',                   // add HTML5 video and audio elements to editable area
+                //'mentions',              // present a list of users when user types "@" symbol followed by the beginnings of a username 
+                //'MoxieManager',          // premium - enables users to insert files located externally (e.g. disc) to editor
+                'nonbreaking',             // button for inserting nonbreaking space entities &nbsp; 
+                'noneditable',             // elements with certain classed (mceNonEditable) can't be edited
+                //'pagebreak',             // page break support + enables a user to insert page breaks 
+                'paste',                   // filter/cleanup content pasted from MS Word - needs config; 
+                //'powerpaste',            // PREMIUM cleans up content from MS Word/Excel and HTML sources
+                //'preview',               // adds preview button to toolbar
+                //'print',                 // adds a print button to toolbar
+                //'save',                  // save button, which submits the form that the editor is within.
+                'searchreplace',           // search/replace dialogs 
+                //'spellchecker',          // https://www.tiny.cloud/docs/plugins/spellchecker/
+                //Spell Checker Pro        // Premium - multi language spell check
+                //'tabfocus,               // adds possibility to tab in/out of TinyMCE
+                'table',                   // table management functionality
+                'template',                // support for custom templates
+                'textcolor',               // forecolor/backcolor button
+                'textpattern',             // e.g. type "**text**" and text will be bold: pattern match+replace 
+                'toc',                     // generate basic Table of Contents
+                'visualblocks',            // see block level elements in the editable area - show hidden info
+                'visualchars',             // see invisible characters like &nbsp;
+                //'wordcount'
+                ],
+            image_advtab: true,
+            table_class_list: [
+                {title: 'None', value: ''},
+                {title: 'one', value: 'one'},
+                {title: 'two', value: 'two'}
+                ],
+            statusbar: false,
+            templates: [
+                { title: 'Test template 1', content: 'Test 1' },
+                { title: 'Test template 2', content: 'Test 2' }
+            ],
+    
+    
+            //https://www.tiny.cloud/docs/advanced/editor-command-identifiers/
+            setup: function(editor) {
+              
+                hilite(editor, tinymce, 'hiliteGreen',"#00ff00",'alt+w','GR');
+                hilite(editor, tinymce, 'hiliteBlue',"#00ffff",'alt+e','BL'); 
+                hilite(editor, tinymce, 'hiliteRed',"#fd9796",'alt+r','RE'); 
+                hilite(editor, tinymce, 'hiliteYellow',"#ffff00",'alt+q','YE');
+    
+    
+                //https://stackoverflow.com/a/18970473
+                editor.on('init', function() 
+                {
+                    this.getDoc().body.style.fontSize = `${myfontsize.toString()}px`; //'23px';
+                    this.getDoc().body.style.fontFamily = '%s';
+                });
+                    
+                editor.addCommand('myIncreaseFontSize', function() {
+                    myfontsize++;
+                    this.getDoc().body.style.fontSize = `${myfontsize.toString()}px`; //'23px';
+                });
+                editor.addShortcut('Ctrl++', 'myIncreaseFontSize', 'myIncreaseFontSize');
+                editor.addButton('myIncreaseFontSize', {
+                        text: 'F+',
+                        tooltip: 'myIncreaseFontSize' + '(' + 'Ctrl++' + ')',
+                        icon: false,
+                        cmd: 'myIncreaseFontSize',
+                });
+                
+                editor.addCommand('myDecreaseFontSize', function() {
+                    if(myfontsize>8){
+                        myfontsize--;
+                    };
+                    this.getDoc().body.style.fontSize = `${myfontsize.toString()}px`; //'23px';
+                });
+                editor.addShortcut('Ctrl+-', 'myDecreaseFontSize', 'myDecreaseFontSize');
+                editor.addButton('myDecreaseFontSize', {
+                        text: 'F-',
+                        tooltip: 'myDecreaseFontSize' + '(' + 'Ctrl+-' + ')',
+                        icon: false,
+                        cmd: 'myDecreaseFontSize',
+                });
+    
+                editor.addCommand('nextCloze', function() {
+                    let selected_text = editor.selection.getContent({ format: 'html' });
+                    let content = editor.getContent();
+                    let return_text = newClozeText(content,selected_text,false);
+                    editor.execCommand('mceInsertContent', 0, return_text);
+                });
+                editor.addShortcut('ctrl+shift+c', 'nextCloze', 'nextCloze'); 
+                editor.addButton('nextCloze', {
+                        text: 'Cln',
+                        tooltip: 'nextCloze' + '(' + 'ctrl+shift+c' + ')',
+                        icon: false,
+                        cmd: 'nextCloze',
+                });
+    
+    
+                editor.addCommand('sameCloze', function() {
+                    let selected_text = editor.selection.getContent({ format: 'html' });
+                    let content = editor.getContent();
+                    let return_text = newClozeText(content,selected_text,true);
+                    editor.execCommand('mceInsertContent', 0, return_text);
+                });
+                editor.addShortcut('ctrl+alt+shift+c', 'addCloze', 'sameCloze');
+                editor.addButton('sameCloze', {
+                        text: 'Cls',
+                        tooltip: 'sameCloze' + '(' + 'ctrl+alt+shift+c' + ')',
+                        icon: false,
+                        cmd: 'sameCloze',
+                });
+    
+                
+                var myexQ;
+                var myexA;
+                editor.addCommand('extractAsQuestion', function() {
+                    myexQ = editor.selection.getContent({ format: 'html' });
+                    editor.execCommand('delete', 0, myexQ);
+                });
+                editor.addShortcut('alt+s', 'extractAsQuestion', 'extractAsQuestion');
+                editor.addButton('extractAsQuestion', {
+                        text: 'eQ',
+                        tooltip: 'extractAsQuestion' + '(' + 'alt+s' + ')',
+                        icon: false,
+                        cmd: 'extractAsQuestion',
+                });
+    
+                editor.addCommand('extractAsAnswer', function() {
+                    myexA = editor.selection.getContent({ format: 'html' });
+                    editor.execCommand('delete', 0, myexQ);
+    
+                });
+                editor.addShortcut('alt+s', 'extractAsAnswer', 'extractAsAnswer');
+                editor.addButton('extractAsAnswer', {
+                        text: 'eQ',
+                        tooltip: 'extractAsAnswer' + '(' + 'alt+s' + ')',
+                        icon: false,
+                        cmd: 'extractAsAnswer',
+                });
+    
+    
+    
+                editor.addShortcut("Ctrl+107", 'Superscript', 'Superscript');
+                editor.addShortcut("Ctrl+187", 'Subscript', 'Subscript');
+                editor.addShortcut("Ctrl+r", 'RemoveFormat', 'RemoveFormat');
+    
+                editor.addShortcut('Ctrl+M', 'indent', 'Indent');                       
+                editor.addShortcut('Ctrl+Shift+M', 'outdent', 'Outdent');               
+                editor.addShortcut('F11', 'InsertUnorderedList', 'InsertUnorderedList');
+                editor.addShortcut('123', 'InsertOrderedList', 'InsertOrderedList');   //F12
+    
+                //maximize,  https://stackoverflow.com/a/22959296
+                editor.on('init', function(e) {
+                    editor.execCommand('mceFullScreen');
+                });
+            }, 
+    
+            toolbar1: 'undo redo | fontselect formatselect | alignleft aligncenter alignright alignjustify | link unlink | image charmap cleanup | nextCloze sameCloze ClozeOverlapper code | myIncreaseFontSize myDecreaseFontSize',  // footnotes fontsizeselect
+            toolbar2: 'bold italic underline strikethrough superscript subscript forecolor backcolor removeformat | hiliteYellow hiliteGreen hiliteBlue hiliteRed | hr blockquote | numlist bullist | outdent indent | table | extractAsQuestion extractAsAnswer',
+            imagetools_toolbar: "rotateleft rotateright | flipv fliph | editimage imageoptions",
+            });
+    
+    
+            //highlight
+            //https://stackoverflow.com/a/17611715
+            //https://stackoverflow.com/a/49841804
+            function hilite(editor, tinymce, name, color, key, buttontext){
+                editor.addCommand(name, function () {
+                    let n = tinymce.activeEditor.selection.getNode();
+                    let c = tinymce.activeEditor.dom.getStyle(n, 'background-color', true);
+                    if (c ==color) {
+                        nc = "transparent";
+                    }
+                    else{
+                        nc =color;
+                    }
+                    tinymce.activeEditor.execCommand('HiliteColor', false, nc);
+                });  
+                editor.addShortcut(key, name, name);  
+                editor.addButton(name, {
+                    text: buttontext,
+                    tooltip: name + '(' + key + ')',
+                    icon: false,
+                    cmd: name,
+                });
+            }
+    
+    
+            function newClozeText (content, selected_text, same) {
+            //this function is adjusted from kian which is
+            //    Copyright (C) 2018 Hyun Woo Park, License: AGPLv3, http://www.gnu.org/licenses/.
+            //https://github.com/phu54321/kian/blob/develop/src/components/editor/utils/cloze.js
+            var maxClozeId = 0;
+            content.replace(/\{\{c(\d+)::/g, (match, g1) => {
+                const clozeId = parseInt(g1)
+                if (maxClozeId < clozeId) maxClozeId = clozeId
+            })
+            if(same){
+                var newClozeIndex = Math.max(maxClozeId, 1);
+                }
+            else{
+                var newClozeIndex = maxClozeId + 1;
+            }
+            var text = '{{c' + newClozeIndex + '::' + selected_text + '}}';
+            return text;
+            };
+    
+    
+            //preparation for cloze overlapper: the actual clozes - ctrl+shift+c need to be made from
+            //the regular Add window
+            function newOCclozeText (content, selected_text, same) {
+            //this function is adjusted from kian which is
+            //    Copyright (C) 2018 Hyun Woo Park, License: AGPLv3, http://www.gnu.org/licenses/.
+            //https://github.com/phu54321/kian/blob/develop/src/components/editor/utils/cloze.js
+            var maxClozeId = 0;
+            content.replace(/\[\[oc(\d+)::/g, (match, g1) => {
+                const clozeId = parseInt(g1)
+                if (maxClozeId < clozeId) maxClozeId = clozeId
+            })
+            if(same){
+                var newClozeIndex = Math.max(maxClozeId, 1);
+            }
+            else{
+                var newClozeIndex = maxClozeId + 1;
+            }
+            var text = '[[oc' + newClozeIndex + '::' + selected_text + ']]';
+            return text;
+            };
+    
+        </script>
+    <div class="wysiwyg";>%s</div>
+
