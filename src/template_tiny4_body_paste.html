@@ -130,6 +130,11 @@
                     this.getDoc().body.style.fontFamily = '%s';
                     this.getDoc().body.style.backgroundColor = '#e4e2e0';
                 });
+
+                editor.on('PastePreProcess', function (e) {
+                            pycmd("paste");
+                            e.content = "" ;
+                            });
                     
                 editor.addCommand('myIncreaseFontSize', function() {
                     myfontsize++;
@@ -305,5 +310,5 @@
             };
     
         </script>
-    <div class="wysiwyg";>%s</div>
-
+    <div class="wysiwyg" ondragover='onDragOver(this);'
+                         oncopy='onCutOrCopy(this);' oncut='onCutOrCopy(this);'>%s</div>

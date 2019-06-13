@@ -1,8 +1,8 @@
 {
-    "tinymce4Hotkey":"Ctrl+0",
-    "tinymce5Hotkey":"Ctrl+9",
-    "ckeditor5Hotkey":"Ctrl+8",
-    "ckeditor4Hotkey":"Ctrl+7",
+    "default_height": 1100,
+    "default_width": 810,
+    "experimental_paste_support":false,
+    "font":"Times New Roman",
     "fontSize":"20",
-    "font":"Times New Roman"
+    "tinymce4Hotkey":"Ctrl+0"
 }
