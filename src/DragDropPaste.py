@@ -39,7 +39,12 @@ from anki.hooks import addHook
 import aqt
 from aqt import mw
 from aqt.qt import *
-from aqt.utils import showInfo, askUser
+from aqt.utils import (
+     askUser,
+     saveGeom,
+     restoreGeom,
+     showInfo
+)
 from aqt.editor import Editor
 from aqt.webview import AnkiWebView
 
@@ -329,7 +334,7 @@ class MyWebView(AnkiWebView):
         self.triggerPageAction(QWebEnginePage.Copy)
 
     def _onPaste(self, mode):
-        extended = self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        extended = True
         mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
         html, internal = self._processMime(mime)
         if not html:
@@ -505,7 +510,8 @@ class MyDialog(QDialog):
 
         self.jsSavecommand = "tinyMCE.activeEditor.getContent();"
         self.setWindowTitle('Anki - edit current field in TinyMCE4')
-        self.resize(gc("default_width", 810), gc("default_height", 1100))
+        self.resize(810, 1100)
+        restoreGeom(self, "805891399_winsize")
 
         mainLayout = QVBoxLayout()
         mainLayout.setContentsMargins(0, 0, 0, 0)
@@ -536,12 +542,14 @@ class MyDialog(QDialog):
         self.edit.web = None  # doesn't remove?
         # self.edit.web._page.windowCloseRequested()  # native qt signal not callable
         # self.edit.web._page.windowCloseRequested.connect(self.edit.web._page.window_close_requested)
+        saveGeom(self, "805891399_winsize")
         self.accept()
         # self.done(0)
 
     def onReject(self):
         ok = askUser("Close and lose current input?")
         if ok:
+            saveGeom(self, "805891399_winsize")
             self.reject()
 
     def closeEvent(self, event):

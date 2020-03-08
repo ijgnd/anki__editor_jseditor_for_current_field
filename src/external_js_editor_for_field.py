@@ -21,7 +21,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-This add-on bundles TinyMCE downloaded from http://download.tiny.cloud/tinymce/community/tinymce_4.9.4.zip
+This add-on bundles TinyMCE downloaded from http://download.tiny.cloud/tinymce/community/tinymce_4.9.8.zip
 This site states "TinyMCE is open source and licensed under LGPL 2.1.", see web/tinymce/js/tinymce/license.txt
 The tinymce package does not contain any information on the copyright.
 TinyMCE is developed at https://github.com/tinymce/tinymce
@@ -39,7 +39,12 @@ from anki.hooks import addHook
 import aqt
 from aqt import mw
 from aqt.qt import *
-from aqt.utils import showInfo, askUser
+from aqt.utils import (
+     askUser,
+     saveGeom,
+     restoreGeom,
+     showInfo
+)
 from aqt.editor import Editor
 from aqt.webview import AnkiWebView
 
@@ -113,14 +118,15 @@ class MyDialog(QDialog):
 
         self.jsSavecommand = "tinyMCE.activeEditor.getContent();"
         self.setWindowTitle('Anki - edit current field in TinyMCE4')
-        self.resize(gc("default_width", 810), gc("default_height", 1100))
+        self.resize(810, 1100)
+        restoreGeom(self, "805891399_winsize")
 
         mainLayout = QVBoxLayout()
         mainLayout.setContentsMargins(0, 0, 0, 0)
         mainLayout.setSpacing(0)
         self.setLayout(mainLayout)
         self.web = MyWebView(self)
-        self.web.allowDrops = False   # default in webview/AnkiWebView is False
+        self.web.allowDrops = True   # default in webview/AnkiWebView is False
         self.web.title = "tinymce4"
         self.web.contextMenuEvent = self.contextMenuEvent
         mainLayout.addWidget(self.web)
@@ -144,12 +150,14 @@ class MyDialog(QDialog):
         self.web = None  # doesn't remove?
         # self.web._page.windowCloseRequested()  # native qt signal not callable
         # self.web._page.windowCloseRequested.connect(self.web._page.window_close_requested)
+        saveGeom(self, "805891399_winsize")
         self.accept()
         # self.done(0)
 
     def onReject(self):
         ok = askUser("Close and lose current input?")
         if ok:
+            saveGeom(self, "805891399_winsize")
             self.reject()
 
     def closeEvent(self, event):
