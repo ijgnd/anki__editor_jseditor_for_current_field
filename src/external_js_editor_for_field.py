@@ -1,33 +1,46 @@
 """
-anki-addon: open field contents in WYSIWYG-Editor(like TinyMCE)
+anki-addon: open field contents in WYSIWYG-Editor (like TinyMCE)
 
 Copyright (c) 2019 ignd
-          (c) 2014 - 2016 Detlev Offenbach <detlev@die-offenbachs.de>
-              (the function __execJavaScript)
           (c) Ankitects Pty Ltd and contributors
-          (c) 2018 Hyun Woo Park (cloze functions in template file)
+          (c) 2018 Hyun Woo Park
+                   (the cloze functions in template file are taken from
+                   https://github.com/phu54321/kian which is AGPLv3) 
 
-This program is free software: you can redistribute it and/or modify
+
+This add-on is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
 published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+This add-on is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+along with this add-on.  If not, see <https://www.gnu.org/licenses/>.
 
 
-This add-on bundles TinyMCE downloaded from http://download.tiny.cloud/tinymce/community/tinymce_4.9.8.zip
-This site states "TinyMCE is open source and licensed under LGPL 2.1.", see web/tinymce/js/tinymce/license.txt
-The tinymce package does not contain any information on the copyright.
-TinyMCE is developed at https://github.com/tinymce/tinymce
-For years there's been a CLA at https://github.com/tinymce/tinymce/blob/master/modules/tinymce/readme.md
-that states that each contributor agress that the copyright is changed to Ephox Corporation.
-So likely tinymce is: copyright (c) Ephox Corporation.
+
+This add-on bundles "TinyMCE" in the folder web/tinymce
+    "TinyMCE" was downloaded from http://download.tiny.cloud/tinymce/community/tinymce_4.9.8.zip
+    "TinyMCE" contains web/tinymce/js/tinymce/license.txt
+
+    The tinymce package does not contain any information on the copyright.
+    TinyMCE is developed at https://github.com/tinymce/tinymce
+    For years there's been a CLA at https://github.com/tinymce/tinymce/blob/master/modules/tinymce/readme.md
+    that states that each contributor agress that the copyright is changed to Ephox Corporation.
+    So likely tinymce is: copyright (c) Ephox Corporation.
+
+
+
+This add-on bundles the file "sync_execJavaScript.py" which has this copyright and permission
+notice: 
+
+    Copyright: 2014 - 2016 Detlev Offenbach <detlev@die-offenbachs.de>
+                  (taken from https://github.com/pycom/EricShort/blob/master/UI/Previewers/PreviewerHTML.py)
+    License: GPLv3 or later, https://github.com/pycom/EricShort/blob/025a9933bdbe92f6ff1c30805077c59774fa64ab/LICENSE.GPL3
 """
 
 import os
@@ -48,9 +61,15 @@ from aqt.utils import (
 from aqt.editor import Editor
 from aqt.webview import AnkiWebView
 
+from .sync_execJavaScript import sync_execJavaScript
+
 
 def gc(arg, fail=False):
-    return mw.addonManager.getConfig(__name__).get(arg, fail)
+    conf =  mw.addonManager.getConfig(__name__)
+    if conf:
+        conf.get(arg, fail)
+    else:
+        return fail
 
 
 addon_path = os.path.dirname(__file__)
@@ -73,31 +92,8 @@ jsfiles = addon_jsfiles + other_jsfiles
 
 
 class MyWebView(AnkiWebView):
-
-    # via https://riverbankcomputing.com/pipermail/pyqt/2016-May/037449.html
-    # https://github.com/pycom/EricShort/blob/master/UI/Previewers/PreviewerHTML.py
     def sync_execJavaScript(self, script):
-        """
-        Private function to execute a JavaScript function Synchroneously.
-        @param script JavaScript script source to be executed
-        @type str
-        @return result of the script
-        @rtype depending upon script result
-        """
-        from PyQt5.QtCore import QEventLoop
-        loop = QEventLoop()
-        resultDict = {"res": None}
-
-        def resultCallback(res, resDict=resultDict):
-            if loop and loop.isRunning():
-                resDict["res"] = res
-                loop.quit()
-
-        self.page().runJavaScript(
-            script, resultCallback)
-        loop.exec_()
-        return resultDict["res"]
-
+        return sync_execJavaScript(self, script)
 
     def bundledScript(self, fname):
         if fname in addon_jsfiles:
