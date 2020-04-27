@@ -26,6 +26,7 @@ along with this add-on.  If not, see <https://www.gnu.org/licenses/>.
 This add-on bundles "TinyMCE" in the folder web/tinymce
     "TinyMCE" was downloaded from http://download.tiny.cloud/tinymce/community/tinymce_4.9.8.zip
     "TinyMCE" contains web/tinymce/js/tinymce/license.txt
+    "TinyMCE" is licensed as LPGL 2.1 (or later)
 
     The tinymce package does not contain any information on the copyright.
     TinyMCE is developed at https://github.com/tinymce/tinymce
