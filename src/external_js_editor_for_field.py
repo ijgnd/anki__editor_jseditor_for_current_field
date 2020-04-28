@@ -62,15 +62,9 @@ from aqt.utils import (
 from aqt.editor import Editor
 from aqt.webview import AnkiWebView
 
+from .config import gc
 from .sync_execJavaScript import sync_execJavaScript
 
-
-def gc(arg, fail=False):
-    conf =  mw.addonManager.getConfig(__name__)
-    if conf:
-        conf.get(arg, fail)
-    else:
-        return fail
 
 
 addon_path = os.path.dirname(__file__)

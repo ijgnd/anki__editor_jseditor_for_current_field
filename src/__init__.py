@@ -1,8 +1,7 @@
 from aqt import mw
 from anki.hooks import addHook, runHook, wrap
 
-def gc(arg, fail=False):
-    return mw.addonManager.getConfig(__name__).get(arg, fail)
+from .config import gc
 
 
 def tinyloader():
@@ -12,5 +11,3 @@ def tinyloader():
         from . import external_js_editor_for_field
 
 addHook('profileLoaded', tinyloader)
-
-
