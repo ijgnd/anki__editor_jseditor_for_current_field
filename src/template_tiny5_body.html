@@ -1,28 +1,32 @@
 
         <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
         <script>
-            var myfontsize = %s;
+            var myfontsize = "%(FONTSIZE)s";
     
             tinymce.init({
-            selector: '.wysiwyg',
-            auto_focus: 'focusme',
+            //selector: "textarea",
+            selector: '.tinymce5_wysiwyg',
+            auto_focus: 'tinymce5_wysiwyg_unique',  // https://www.tiny.cloud/docs/configure/integration-and-setup/#auto_focus
+                                                    // set to editor instance id which is id for the original div element that got replaced.
             document_base_url: '../../../../../../',
             body_class: 'bodyclass',
-            content_css: 'tinymce_custom.css',
-            visual : false,
-            //height : "850",
-            theme: 'modern',
+            content_css: ["%(CONTENTCSS)s", '../../../../../../_editor_button_styles.css'],
+            // visual : false,
+            //height : "100vh", // "850", "100%%",
+            skin: "%(SKIN)s",
+            theme: "%(THEME)s",
             plugins: [
+                "autoresize",
                 //'anchor',                // anchor/bookmark toolbarbutton that inserts anchor at cursor
                 //'advlist',               // https://www.tiny.cloud/docs/plugins/advlist/
                 'autolink',                // format links as hyperlinks
                 'charmap',                 // select unicode characters from window
                 'code',                    // view source code
                 //'codemirror',              // https://github.com/christiaan/tinymce-codemirror
-                'codesample',              // insert syntax color highlighted code 
-                //'colorpicker',
-                'textcolor colorpicker',   // https://www.tiny.cloud/docs/plugins/colorpicker/ 
-                'contextmenu',             // add contextmenu
+                // 'codesample',              // insert syntax color highlighted code: No not supported in the rest of anki
+                // 'colorpicker',
+                // 'textcolor colorpicker',   // https://www.tiny.cloud/docs/plugins/colorpicker/ 
+                //'contextmenu',             // add contextmenu
                 //'footnotes',             // doesn't work, NON-FREE (because no licsense in the repo), https://github.com/rainywalker/footNotes
                 //'fullpage',              // adds head/body tags, see https://stackoverflow.com/a/19209259
                 'fullscreen',              // maximize tinymce to window https://www.tiny.cloud/docs/plugins/fullscreen/
@@ -53,14 +57,14 @@
                 //Spell Checker Pro        // Premium - multi language spell check
                 //'tabfocus,               // adds possibility to tab in/out of TinyMCE
                 'table',                   // table management functionality
-                'template',                // support for custom templates
-                'textcolor',               // forecolor/backcolor button
+                // 'template',                // support for custom templates: adds menu entry I don't want
+                // 'textcolor',            // forecolor/backcolor button
                 'textpattern',             // e.g. type "**text**" and text will be bold: pattern match+replace 
                 'toc',                     // generate basic Table of Contents
                 'visualblocks',            // see block level elements in the editable area - show hidden info
                 'visualchars',             // see invisible characters like &nbsp;
                 //'wordcount'
-                ],
+            ],
             image_advtab: true,
             table_class_list: [
                 {title: 'None', value: ''},
@@ -68,6 +72,8 @@
                 {title: 'two', value: 'two'}
                 ],
             statusbar: false,
+            menubar : 'edit insert view format table tools help',
+            removed_menuitems: 'codeformat print image templates media'  ,  // https://www.tiny.cloud/docs/configure/editor-appearance/#removed_menuitems           
             templates: [
                 { title: 'Test template 1', content: 'Test 1' },
                 { title: 'Test template 2', content: 'Test 2' }
@@ -86,77 +92,39 @@
             ],
             //https://www.tiny.cloud/docs-4x/plugins/contextmenu/
             contextmenu: "link image inserttable | cell row column deletetable", // | customItem1 | customItem2",
-            
+
+    
+
             //https://www.tiny.cloud/docs/advanced/editor-command-identifiers/
             setup: function(editor) {
-                
-                //https://stackoverflow.com/a/48176031
-//                 editor.addMenuItem('customItem1', {
-//                     text: 'Menu Item 1',
-//                     context: 'tools',
-//                     onclick: function () {
-//                         alert('Menu item 1 clicked');
-//                     }
-//                 });
-//                 editor.addMenuItem('customItem2', {
-//                     text: 'Menu Item 2',
-//                     context: 'tools',
-//                     menu: [ {
-//                         text: "Sub-menu item 1",
-//                         onclick: function () {
-//                             alert('Sub-menu item 1');
-//                         }
-//                     }, {
-//                         text: "Sub-menu item 2",
-//                         onclick: function () {
-//                             alert('Sub-menu item 2');
-//                         }
-//                     }]
-//                 });
-                
-
-
-
-                hilite(editor, tinymce, 'hiliteGreen',"#00ff00",'alt+w','GR');
-                hilite(editor, tinymce, 'hiliteBlue',"#00ffff",'alt+e','BL'); 
-                hilite(editor, tinymce, 'hiliteRed',"#fd9796",'alt+r','RE'); 
-                hilite(editor, tinymce, 'hiliteYellow',"#ffff00",'alt+q','YE');
-    
-    
                 //https://stackoverflow.com/a/18970473
                 editor.on('init', function() 
                 {
                     this.getDoc().body.style.fontSize = `${myfontsize.toString()}px`; //'23px';
-                    this.getDoc().body.style.fontFamily = '%s';
-                    this.getDoc().body.style.backgroundColor = '#e4e2e0';
+                    this.getDoc().body.style.fontFamily = '%(FONTNAME)s';
+                    %(CUSTOMBGCOLOR)s
+                    editor.execCommand('mceFullScreen');        //maximize,  https://stackoverflow.com/a/22959296
                 });
-                    
-                editor.addCommand('myIncreaseFontSize', function() {
-                    myfontsize++;
-                    this.getDoc().body.style.fontSize = `${myfontsize.toString()}px`; //'23px';
-                });
-                editor.addShortcut('Ctrl++', 'myIncreaseFontSize', 'myIncreaseFontSize');
-                editor.addButton('myIncreaseFontSize', {
-                        text: 'F+',
-                        tooltip: 'myIncreaseFontSize' + '(' + 'Ctrl++' + ')',
-                        icon: false,
-                        cmd: 'myIncreaseFontSize',
-                });
-                
-                editor.addCommand('myDecreaseFontSize', function() {
-                    if(myfontsize>8){
-                        myfontsize--;
-                    };
-                    this.getDoc().body.style.fontSize = `${myfontsize.toString()}px`; //'23px';
-                });
-                editor.addShortcut('Ctrl+-', 'myDecreaseFontSize', 'myDecreaseFontSize');
-                editor.addButton('myDecreaseFontSize', {
-                        text: 'F-',
-                        tooltip: 'myDecreaseFontSize' + '(' + 'Ctrl+-' + ')',
-                        icon: false,
-                        cmd: 'myDecreaseFontSize',
-                });
+
+                editor.addShortcut("Ctrl+107", 'Superscript', 'Superscript');
+                editor.addShortcut("Ctrl+187", 'Subscript', 'Subscript');
+                editor.addShortcut("Ctrl+r", 'RemoveFormat', 'RemoveFormat');
+                editor.addShortcut("Ctrl+Shift+X", 'mceCodeEditor', 'mceCodeEditor');
     
+                editor.addShortcut('Ctrl+M', 'indent', 'Indent');                       
+                editor.addShortcut('Ctrl+Alt+M', 'outdent', 'Outdent');               
+                editor.addShortcut('F11', 'InsertUnorderedList', 'InsertUnorderedList');
+                editor.addShortcut('123', 'InsertOrderedList', 'InsertOrderedList');   //F12
+
+                // TODO change to class applier
+                hilite(editor, tinymce, 'hiliteGreen',"#00ff00",'alt+w','GR');
+                hilite(editor, tinymce, 'hiliteBlue',"#00ffff",'alt+e','BL'); 
+                hilite(editor, tinymce, 'hiliteRed',"#fd9796",'alt+r','RE'); 
+                hilite(editor, tinymce, 'hiliteYellow',"#ffff00",'alt+q','YE');
+
+
+
+
                 editor.addCommand('nextCloze', function() {
                     let selected_text = editor.selection.getContent({ format: 'html' });
                     let content = editor.getContent();
@@ -164,13 +132,13 @@
                     editor.execCommand('mceInsertContent', 0, return_text);
                 });
                 editor.addShortcut('ctrl+shift+c', 'nextCloze', 'nextCloze'); 
-                editor.addButton('nextCloze', {
+                editor.ui.registry.addButton('nextCloze', {
                         text: 'Cln',
                         tooltip: 'nextCloze' + '(' + 'ctrl+shift+c' + ')',
-                        icon: false,
-                        cmd: 'nextCloze',
+                        onAction: () => {editor.execCommand('nextCloze');}
                 });
-    
+
+
     
                 editor.addCommand('sameCloze', function() {
                     let selected_text = editor.selection.getContent({ format: 'html' });
@@ -179,14 +147,15 @@
                     editor.execCommand('mceInsertContent', 0, return_text);
                 });
                 editor.addShortcut('ctrl+alt+shift+c', 'addCloze', 'sameCloze');
-                editor.addButton('sameCloze', {
+                editor.ui.registry.addButton('sameCloze', {
                         text: 'Cls',
                         tooltip: 'sameCloze' + '(' + 'ctrl+alt+shift+c' + ')',
-                        icon: false,
-                        cmd: 'sameCloze',
+                        onAction: () => {editor.execCommand('sameCloze');}
                 });
     
-                
+
+
+/*
                 var myexQ;
                 var myexA;
                 editor.addCommand('extractAsQuestion', function() {
@@ -194,54 +163,43 @@
                     editor.execCommand('delete', 0, myexQ);
                 });
                 editor.addShortcut('alt+s', 'extractAsQuestion', 'extractAsQuestion');
-                editor.addButton('extractAsQuestion', {
+                editor.ui.registry.addButton('extractAsQuestion', {
                         text: 'eQ',
                         tooltip: 'extractAsQuestion' + '(' + 'alt+s' + ')',
-                        icon: false,
-                        cmd: 'extractAsQuestion',
+                        onAction: () => {editor.execCommand('extractAsQuestion');}
                 });
     
                 editor.addCommand('extractAsAnswer', function() {
                     myexA = editor.selection.getContent({ format: 'html' });
                     editor.execCommand('delete', 0, myexQ);
-    
                 });
                 editor.addShortcut('alt+s', 'extractAsAnswer', 'extractAsAnswer');
-                editor.addButton('extractAsAnswer', {
+                editor.ui.registry.addButton('extractAsAnswer', {
                         text: 'eQ',
                         tooltip: 'extractAsAnswer' + '(' + 'alt+s' + ')',
-                        icon: false,
-                        cmd: 'extractAsAnswer',
+                        onAction: () => {editor.execCommand('extractAsAnswer');}
                 });
-    
-    
-    
-                editor.addShortcut("Ctrl+107", 'Superscript', 'Superscript');
-                editor.addShortcut("Ctrl+187", 'Subscript', 'Subscript');
-                editor.addShortcut("Ctrl+r", 'RemoveFormat', 'RemoveFormat');
-                editor.addShortcut("Ctrl+Shift+X", 'mceCodeEditor', 'mceCodeEditor');
-    
-                editor.addShortcut('Ctrl+M', 'indent', 'Indent');                       
-                editor.addShortcut('Ctrl+Shift+M', 'outdent', 'Outdent');               
-                editor.addShortcut('F11', 'InsertUnorderedList', 'InsertUnorderedList');
-                editor.addShortcut('123', 'InsertOrderedList', 'InsertOrderedList');   //F12
-    
-                //maximize,  https://stackoverflow.com/a/22959296
-                editor.on('init', function(e) {
-                    editor.execCommand('mceFullScreen');
-                });
+*/
+
+
+
+
             }, 
-    
-            toolbar1: 'undo redo | fontselect formatselect | alignleft aligncenter alignright alignjustify | link unlink | image charmap cleanup | nextCloze sameCloze ClozeOverlapper code codesample | myIncreaseFontSize myDecreaseFontSize',  // footnotes fontsizeselect
+            toolbar1: 'undo redo | fontselect formatselect | alignleft aligncenter alignright alignjustify | link unlink | image charmap cleanup | nextCloze sameCloze ClozeOverlapper code codesample',  // footnotes fontsizeselect
             toolbar2: 'bold italic underline strikethrough superscript subscript forecolor backcolor removeformat | hiliteYellow hiliteGreen hiliteBlue hiliteRed | hr blockquote | numlist bullist | outdent indent | table',
             imagetools_toolbar: "rotateleft rotateright | flipv fliph | editimage imageoptions",
-            });
-    
-    
+            
+
+        })
+
+
+
             //highlight
             //https://stackoverflow.com/a/17611715
             //https://stackoverflow.com/a/49841804
             function hilite(editor, tinymce, name, color, key, buttontext){
+                // https://www.tiny.cloud/docs/api/tinymce/tinymce.editor/#addcommand
+                // the command that you add with addCommand can be executed with execCommand.
                 editor.addCommand(name, function () {
                     let n = tinymce.activeEditor.selection.getNode();
                     let c = tinymce.activeEditor.dom.getStyle(n, 'background-color', true);
@@ -253,16 +211,16 @@
                     }
                     tinymce.activeEditor.execCommand('HiliteColor', false, nc);
                 });  
-                editor.addShortcut(key, name, name);  
-                editor.addButton(name, {
+                editor.addShortcut(key, name, name);
+                // https://www.tiny.cloud/docs/ui-components/typesoftoolbarbuttons/
+                editor.ui.registry.addButton(name, {
                     text: buttontext,
                     tooltip: name + '(' + key + ')',
-                    icon: false,
-                    cmd: name,
+                    onAction: () => {editor.execCommand(name);}
                 });
             }
-    
-    
+
+
             function newClozeText (content, selected_text, same) {
             //this function is adjusted from kian which is
             //    Copyright (C) 2018 Hyun Woo Park, License: AGPLv3, http://www.gnu.org/licenses/.
@@ -303,7 +261,19 @@
             var text = '[[oc' + newClozeIndex + '::' + selected_text + ']]';
             return text;
             };
-    
-        </script>
-    <div class="wysiwyg";>%s</div>
 
+
+
+// toggle full screen on and off to resize properly: see note on top of external_js_editor_for_field.py
+function resize_tiny_mce(){
+    if (tinyMCE.activeEditor){
+        if (tinyMCE.activeEditor.plugins.fullscreen.isFullscreen()){
+            tinyMCE.activeEditor.execCommand('mceFullScreen');
+            tinyMCE.activeEditor.execCommand('mceFullScreen');
+        }
+    }
+}
+window.addEventListener('resize', resize_tiny_mce);
+        </script>
+    <!-- <textarea name="content"></textarea> -->
+    <div class="tinymce5_wysiwyg" id="tinymce5_wysiwyg_unique">%(CONTENT)s</div>

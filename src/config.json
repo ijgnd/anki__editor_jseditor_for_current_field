@@ -1,5 +1,5 @@
 {
-    "font":"Times New Roman",
-    "fontSize":"20",
-    "tinymce4Hotkey":"Ctrl+0"
+    "font": "Times New Roman",
+    "fontSize": "20",
+    "shortcut: open dialog": "Ctrl+0"
 }

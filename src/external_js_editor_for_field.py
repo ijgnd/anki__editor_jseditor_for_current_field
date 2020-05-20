@@ -1,7 +1,7 @@
 """
 anki-addon: open field contents in WYSIWYG-Editor (like TinyMCE)
 
-Copyright (c) 2019 ignd
+Copyright (c) 2019- ignd
           (c) Ankitects Pty Ltd and contributors
           (c) 2018 Hyun Woo Park
                    (the cloze functions in template file are taken from
@@ -24,21 +24,14 @@ along with this add-on.  If not, see <https://www.gnu.org/licenses/>.
 
 
 This add-on bundles "TinyMCE" in the folder web/tinymce
+    Copyright (c) Tiny Technologies, Inc.
     "TinyMCE" was downloaded from http://download.tiny.cloud/tinymce/community/tinymce_4.9.8.zip
-    "TinyMCE" contains web/tinymce/js/tinymce/license.txt
+    "TinyMCE" contains web/tinymce5/js/tinymce/license.txt
     "TinyMCE" is licensed as LPGL 2.1 (or later)
-
-    The tinymce package does not contain any information on the copyright.
-    TinyMCE is developed at https://github.com/tinymce/tinymce
-    For years there's been a CLA at https://github.com/tinymce/tinymce/blob/master/modules/tinymce/readme.md
-    that states that each contributor agress that the copyright is changed to Ephox Corporation.
-    So likely tinymce is: copyright (c) Ephox Corporation.
-
 
 
 This add-on bundles the file "sync_execJavaScript.py" which has this copyright and permission
 notice: 
-
     Copyright: 2014 - 2016 Detlev Offenbach <detlev@die-offenbachs.de>
                   (taken from https://github.com/pycom/EricShort/blob/master/UI/Previewers/PreviewerHTML.py)
     License: GPLv3 or later, https://github.com/pycom/EricShort/blob/025a9933bdbe92f6ff1c30805077c59774fa64ab/LICENSE.GPL3
@@ -49,22 +42,81 @@ import io
 import time
 
 from anki.hooks import addHook
+from anki.utils import isLin
 
 import aqt
 from aqt import mw
-from aqt.qt import *
+from aqt.editor import Editor
+from aqt.qt import (
+    QDialog,
+    QVBoxLayout,
+    QDialogButtonBox,
+    Qt,
+    QMetaObject,
+    QShortcut,
+    QKeySequence,
+    QNativeGestureEvent,
+    QEvent,
+)
+from aqt.theme import theme_manager
 from aqt.utils import (
      askUser,
      saveGeom,
      restoreGeom,
      showInfo
 )
-from aqt.editor import Editor
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, QWebEngineView
 
 from .config import gc
 from .sync_execJavaScript import sync_execJavaScript
 
+
+
+"""
+tinymce5 full screen resizing didn't work in 2020-05: so I added resize_tiny_mce as a workaround
+
+Background:
+- what worked in tinymce4 no longer works
+- height : "100vh" didn't help though it should? https://www.tiny.cloud/docs/configure/editor-appearance/#height
+- nothing else useful in https://www.tiny.cloud/docs/configure/editor-appearance
+- autoresize plugin: no help
+- github issues search for:   is:issue full screen  label:5.x 
+
+to make sure it's not some interaction with my full config I tested with this minimal config
+which made no difference:
+
+<script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+<script>   
+tinymce.init({
+    selector: '.tinymce5_wysiwyg',
+    plugins: [
+        'fullscreen',       // maximize tinymce to window https://www.tiny.cloud/docs/plugins/fullscreen/
+        ],
+    setup: function(editor) {
+        editor.on('init', function() {
+            editor.execCommand('mceFullScreen');   //maximize,  https://stackoverflow.com/a/22959296
+        });
+    }
+})
+</script>
+<div class="tinymce5_wysiwyg" id="tinymce5_wysiwyg_unique" style="height:100vh;">%(CONTENT)s</div>
+
+
+
+or this minimal example:
+<script>
+tinymce.init({
+    selector: 'textarea#basic-example',
+    height: 500,
+    menubar: false,
+    plugins: [
+    'fullscreen',
+    ],
+    menubar: 'file edit view insert format tools table help',
+});
+</script>
+<textarea id="basic-example">%(CONTENT)s</textarea>
+"""
 
 
 addon_path = os.path.dirname(__file__)
@@ -79,7 +131,8 @@ addon_cssfiles = ["webview_override.css",
 other_cssfiles = []
 cssfiles = addon_cssfiles + other_cssfiles
 
-addon_jsfiles = ["tinymce4/js/tinymce/tinymce.min.js",
+
+addon_jsfiles = ["tinymce5/js/tinymce/tinymce.min.js",
                  ]
 other_jsfiles = ["jquery.js",
                  ]
@@ -87,6 +140,7 @@ jsfiles = addon_jsfiles + other_jsfiles
 
 
 class MyWebView(AnkiWebView):
+
     def sync_execJavaScript(self, script):
         return sync_execJavaScript(self, script)
 
@@ -102,13 +156,54 @@ class MyWebView(AnkiWebView):
         else:
             return '<link rel="stylesheet" type="text/css" href="%s">' % self.webBundlePath(fname)
 
+    def zoom_in(self):
+        self.change_zoom_by(1.1)
+
+    def zoom_out(self):
+        self.change_zoom_by(1/1.1)
+
+    def change_zoom_by(self, interval):
+        currZoom = QWebEngineView.zoomFactor(self)
+        self.setZoomFactor(currZoom * interval)
+
+    def wheelEvent(self, event):
+        # doesn't work in 2020-05?
+        pass
+
+    def eventFilter(self, obj, evt):
+        # from aqt.webview.AnkiWebView
+        #    because wheelEventdoesn't work in 2020-05?
+
+
+        # disable pinch to zoom gesture
+        if isinstance(evt, QNativeGestureEvent):
+            return True
+
+        ###my mod
+        # event type 31  # https://doc.qt.io/qt-5/qevent.html
+        # evt.angleDelta().x() == 0   =>  ignore sidecroll 
+        elif evt.type() == QEvent.Wheel and evt.angleDelta().x() == 0 and (mw.app.keyboardModifiers() & Qt.ControlModifier): 
+            dif = evt.angleDelta().y()
+            if dif > 0:
+                self.zoom_out()
+            else:
+                self.zoom_in()
+        ### end my mode
+
+        elif evt.type() == QEvent.MouseButtonRelease:
+            if evt.button() == Qt.MidButton and isLin:
+                self.onMiddleClickPaste()
+                return True
+            return False
+        return False
+
 
 class MyDialog(QDialog):
     def __init__(self, parent, bodyhtml):
         super(MyDialog, self).__init__(parent)
 
         self.jsSavecommand = "tinyMCE.activeEditor.getContent();"
-        self.setWindowTitle('Anki - edit current field in TinyMCE4')
+        self.setWindowTitle('Anki - edit current field in TinyMCE5')
         self.resize(810, 1100)
         restoreGeom(self, "805891399_winsize")
 
@@ -118,7 +213,7 @@ class MyDialog(QDialog):
         self.setLayout(mainLayout)
         self.web = MyWebView(self)
         self.web.allowDrops = True   # default in webview/AnkiWebView is False
-        self.web.title = "tinymce4"
+        self.web.title = "tinymce5"
         self.web.contextMenuEvent = self.contextMenuEvent
         mainLayout.addWidget(self.web)
 
@@ -132,6 +227,12 @@ class MyDialog(QDialog):
         QMetaObject.connectSlotsByName(self)
         acceptShortcut = QShortcut(QKeySequence("Ctrl+Return"), self)
         acceptShortcut.activated.connect(self.onAccept)
+
+        zoomIn_Shortcut = QShortcut(QKeySequence("Ctrl++"), self)
+        zoomIn_Shortcut.activated.connect(self.web.zoom_in)
+
+        zoomOut_Shortcut = QShortcut(QKeySequence("Ctrl+-"), self)
+        zoomOut_Shortcut.activated.connect(self.web.zoom_out)
 
         self.web.stdHtml(bodyhtml, cssfiles, jsfiles)
 
@@ -159,80 +260,49 @@ class MyDialog(QDialog):
             event.ignore()
 
 
-def _onWYSIWYGUpdateField(self):
-    try:
-        note = mw.col.getNote(self.nid)
-    except:   # new note
-        self.note.fields[self.myfield] = editedfieldcontent
-        self.note.flush()
-    else:
-        note.fields[self.myfield] = editedfieldcontent
-        note.flush()
-        mw.requireReset()
-        mw.reset()
-    self.loadNote(focusTo=self.myfield)
+def _onWYSIWYGUpdateField(editor):
+    editor.note.fields[editor.myfield] = editedfieldcontent
+    editor.note.flush()
+    editor.loadNote(focusTo=editor.myfield)
 Editor._onWYSIWYGUpdateField = _onWYSIWYGUpdateField
 
 
-def on_WYSIWYGdialog_finished(self, status):
+def on_WYSIWYGdialog_finished(editor, status):
     if status:
-        self.saveNow(lambda: self._onWYSIWYGUpdateField())
+        editor.saveNow(lambda: editor._onWYSIWYGUpdateField())
 Editor.on_WYSIWYGdialog_finished = on_WYSIWYGdialog_finished
 
 
-def wysiwyg_dialog(self, field):
-    bodyhtml = templatecontent % (
-        gc('fontSize'),
-        gc('font'),
-        self.note.fields[field]
-        )
+def wysiwyg_dialog(editor, field):
+    bodyhtml = templatecontent % {
+        "FONTSIZE": gc('fontSize'),
+        "FONTNAME": gc('font'),
+        "CUSTOMBGCOLOR": "" if theme_manager.night_mode else """this.getDoc().body.style.backgroundColor = '#e4e2e0'""",
+        #  https://www.tiny.cloud/blog/dark-mode-tinymce-rich-text-editor/
+        "CONTENTCSS": "dark" if theme_manager.night_mode else "",
+        "SKIN": "oxide-dark" if theme_manager.night_mode else "oxide",
+        "THEME": "silver",
+        "CONTENT": editor.note.fields[field],
+        }
     d = MyDialog(None, bodyhtml)
     # exec_() doesn't work, see  https://stackoverflow.com/questions/39638749/
-    d.finished.connect(self.on_WYSIWYGdialog_finished)
+    d.finished.connect(editor.on_WYSIWYGdialog_finished)
     d.setModal(True)
     d.show()
     d.web.setFocus()
 Editor.wysiwyg_dialog = wysiwyg_dialog
 
 
-def open_in_add_window(val):
-    newNote = mw.col.newNote()
-    newNote.fields[ceA['toAddWindow']['fdx']] = val
-    tags = ceA['toAddWindow']['tags']
-    newNote.tags = [t for t in tags.split(" ") if t]
-    deckname = ceA['toAddWindow']['deck']
-    modelname = ceA['toAddWindow']['notetype']
-
-    addCards = aqt.dialogs.open('AddCards', mw.window())
-    addCards.editor.setNote(newNote, focusTo=0)
-    addCards.deckChooser.setDeckName(deckname)
-    addCards.modelChooser.models.setText(modelname)
-    addCards.activateWindow()
-
-
-def direct_create_new_note(val):
-    c = ceA['createNewNote']  # createNewNote toAddWindow
-    newNote = mw.col.newNote()
-    newNote.mid = c['mid']    # model id
-    tags = c['tags']
-    newNote.tags = [t for t in tags.split(" ") if t]   # see tags.py
-    newNote.fields[c['fdx']] = val
-    newNote.flush()
-    mw.col.addNote(newNote)
-# nid = newNote.id   #reinsert new nid as a reference?
-
-
 def readfile():
-    addondir = os.path.join(os.path.dirname(__file__))
-    filefullpath = os.path.join(addondir, "template_tiny4_body.html")
+    filefullpath = os.path.join(addon_path, "template_tiny5_body.html")
     with io.open(filefullpath, 'r', encoding='utf-8') as f:
         return f.read()
 templatecontent = readfile()
 
 
-def tiny4_start(self):
-    self.myfield = self.currentField
-    self.saveNow(lambda: self.wysiwyg_dialog(self.myfield))
+def external_editor_start(editor):
+    editor.myfield = editor.currentField
+    editor.saveNow(lambda: editor.wysiwyg_dialog(editor.myfield))
 
 
 def keystr(k):
@@ -241,13 +311,17 @@ def keystr(k):
 
 
 def setupEditorButtonsFilter(buttons, editor):
-    if gc('tinymce4Hotkey'):
-        b = editor.addButton(
-            icon=None,  # os.path.join(addon_path, "icons", "tm.png"),
-            cmd="T4",
-            func=tiny4_start,
-            tip="edit current field in external window ({})".format(keystr(gc('tinymce4Hotkey'))),
-            keys=gc('tinymce4Hotkey'))
-        buttons.append(b)
+    cut = gc("shortcut: open dialog")
+    tip = "edit current field in external window"
+    if cut:
+        tip += "({})".format(keystr(gc('tinymce4Hotkey')))
+    b = editor.addButton(
+        icon=None,  # os.path.join(addon_path, "icons", "tm.png"),
+        cmd="T5",
+        func=external_editor_start,
+        tip=tip,
+        keys=keystr(cut) if cut else ""
+        )
+    buttons.append(b)
     return buttons
 addHook("setupEditorButtons", setupEditorButtonsFilter)

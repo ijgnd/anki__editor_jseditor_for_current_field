@@ -1,12 +1,12 @@
-This add-on loads the content of a field from the editor into a new dialog with the wysiwyg html editor <a href="https://en.wikipedia.org/wiki/TinyMCE" rel="nofollow">tinymce</a>. 
+<b>update notice: The latest version supports Anki's built-in night mode which was redesigned with Anki version 2.1.20. So this add-on also requires at least 2.1.20 now.</b>
 
-This editor offers some advanced editing options especially with regard to tables: You can add or delete rows or columns. You can style the table. You can merge cells. You can style the borders and background colors, etc. Besides these table editing features I like that I can resize how images are displayed in Anki. 
+This add-on loads the content of a field from the editor into a new dialog with the wysiwyg html editor <a href="https://en.wikipedia.org/wiki/TinyMCE" rel="nofollow">tinymce</a>. To open this editor click the "T5" button or use the shortcut (adjustable from the add-on config).
 
-Note: Not all functions that you see in the GUI of this dialog are supported. Some have no effect and others throw harmless error messages (like when you try to edit an image). If you can't live with this don't use this add-on.
+This editor offers some advanced editing options especially with regard to tables: You can add or delete rows or columns. You can style the table. You can merge cells. You can style the borders and background colors, etc. 
 
-Drag and Drop of content is not supported. You can paste into this dialog. I would only paste text because (contrary to the Anki editor) images are not downloaded and the html is not cleaned (unless you enable an experimental feature). If you are pasting content from an untrusted source I would paste this directly into the Anki editor - I don't know much about about programming in a secure fashion.
+Drag and Drop of content is not supported. You can paste into this dialog. But I would only paste text from my pdf reader or text editor. I wouldn't paste content from websites because (contrary to the Anki editor) images are not downloaded and the html is not cleaned. the html is not cleaned this might cause problems and/or vulnerabilities in the long run.
 
-General point: Use this at your own risk. If you find a problem, bug, or have a bug fix or improvement please tell me on  <a href="https://github.com/ijgnd/anki__editor_jseditor_for_current_field" rel="nofollow">github</a>. 
+General point: Use this at your own risk. If you find a problem, bug, or have a bug fix or improvement let me  know <a href="https://anki.tenderapp.com/discussions/add-ons/41285-extended-table-editor-official-thread?" rel="nofollow">in the official anki support forum</a>, on  <a href="https://github.com/ijgnd/anki__editor_jseditor_for_current_field" rel="nofollow">github</a> or on reddit (/u/ijgnord).
 
 Thanks @/u/glutaniamte for pointing me to a way to display the images.
 
@@ -14,3 +14,9 @@ Thanks @/u/glutaniamte for pointing me to a way to display the images.
 
 <b>Configuration</b>
 see the readme in the add-on configuration dialog.
+
+<b>Versions</b>
+- 2020-05-20 night mode support, use v5 of tinymce (the wysiwyg component), Ctrl+Mousewheel for zooming, removed experimental option.
+- 2020-04-27 more robust handling of errors in config
+- 2020-03-06 remember window size, updated bundled tinymce
+- 2019-06-14 initial release
