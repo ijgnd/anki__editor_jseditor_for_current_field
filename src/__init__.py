@@ -5,7 +5,7 @@ from .config import gc
 
 
 def tinyloader():
-    if gc('experimental_paste_support', False):
+    if False: # gc('experimental_paste_support', False):
         from . import DragDropPaste
     else:
         from . import external_js_editor_for_field
