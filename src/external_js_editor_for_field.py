@@ -279,7 +279,7 @@ def wysiwyg_dialog(editor, field):
         "FONTNAME": gc('font'),
         "CUSTOMBGCOLOR": "" if theme_manager.night_mode else """this.getDoc().body.style.backgroundColor = '#e4e2e0'""",
         #  https://www.tiny.cloud/blog/dark-mode-tinymce-rich-text-editor/
-        "CONTENTCSS": "dark" if theme_manager.night_mode else "",
+        "CONTENTCSS": '"dark",' if theme_manager.night_mode else "",
         "SKIN": "oxide-dark" if theme_manager.night_mode else "oxide",
         "THEME": "silver",
         "CONTENT": editor.note.fields[field],

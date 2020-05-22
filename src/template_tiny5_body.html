@@ -9,7 +9,12 @@ auto_focus: 'tinymce5_wysiwyg_unique',  // https://www.tiny.cloud/docs/configure
                                         // set to editor instance id which is id for the original div element that got replaced.
 document_base_url: '../../../../../../',
 body_class: 'bodyclass',
-content_css: ["%(CONTENTCSS)s", '../../../../../../_editor_button_styles.css'],
+content_css: [
+    %(CONTENTCSS)s
+    '../../../../../../_editor_button_styles.css',
+    '../../../../../../_editor.css',
+    '../../../../../../_tinymce_custom.css'
+],
 // visual : false,
 //height : "100vh", // "850", "100%%",
 skin: "%(SKIN)s",
