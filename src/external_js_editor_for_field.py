@@ -273,6 +273,15 @@ def on_WYSIWYGdialog_finished(editor, status):
 Editor.on_WYSIWYGdialog_finished = on_WYSIWYGdialog_finished
 
 
+hiliters = """
+    // TODO change to class applier
+    hilite(editor, tinymce, 'hiliteGreen',"#00ff00",'alt+w','GR');
+    hilite(editor, tinymce, 'hiliteBlue',"#00ffff",'alt+e','BL'); 
+    hilite(editor, tinymce, 'hiliteRed',"#fd9796",'alt+r','RE'); 
+    hilite(editor, tinymce, 'hiliteYellow',"#ffff00",'alt+q','YE');
+
+"""
+
 def wysiwyg_dialog(editor, field):
     bodyhtml = templatecontent % {
         "FONTSIZE": gc('fontSize'),
@@ -282,6 +291,7 @@ def wysiwyg_dialog(editor, field):
         "CONTENTCSS": '"dark",' if theme_manager.night_mode else "",
         "SKIN": "oxide-dark" if theme_manager.night_mode else "oxide",
         "THEME": "silver",
+        "HILITERS": hiliters if gc("show background color buttons") else "",
         "CONTENT": editor.note.fields[field],
         }
     d = MyDialog(None, bodyhtml)

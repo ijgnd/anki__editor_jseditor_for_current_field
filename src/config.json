@@ -1,5 +1,6 @@
 {
     "font": "Times New Roman",
     "fontSize": "20",
-    "shortcut: open dialog": "Ctrl+0"
+    "shortcut: open dialog": "Ctrl+0",
+    "show background color buttons": false
 }
