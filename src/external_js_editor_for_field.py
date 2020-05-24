@@ -63,7 +63,8 @@ from aqt.utils import (
      askUser,
      saveGeom,
      restoreGeom,
-     showInfo
+     showInfo,
+     tooltip,
 )
 from aqt.webview import AnkiWebView, QWebEngineView
 
@@ -311,6 +312,9 @@ templatecontent = readfile()
 
 
 def external_editor_start(editor):
+    if editor.currentField is None:
+        tooltip("no field focussed. Aborting ...")        
+        return
     editor.myfield = editor.currentField
     editor.saveNow(lambda: editor.wysiwyg_dialog(editor.myfield))
 
