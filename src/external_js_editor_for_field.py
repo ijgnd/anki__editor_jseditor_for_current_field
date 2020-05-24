@@ -46,7 +46,6 @@ from anki.utils import isLin
 
 import aqt
 from aqt import mw
-from aqt.editor import Editor
 from aqt.qt import (
     QDialog,
     QVBoxLayout,
@@ -265,13 +264,11 @@ def _onWYSIWYGUpdateField(editor):
     editor.note.fields[editor.myfield] = editedfieldcontent
     editor.note.flush()
     editor.loadNote(focusTo=editor.myfield)
-Editor._onWYSIWYGUpdateField = _onWYSIWYGUpdateField
 
 
 def on_WYSIWYGdialog_finished(editor, status):
     if status:
-        editor.saveNow(lambda: editor._onWYSIWYGUpdateField())
-Editor.on_WYSIWYGdialog_finished = on_WYSIWYGdialog_finished
+        editor.saveNow(lambda e=editor: _onWYSIWYGUpdateField(e))
 
 
 hiliters = """
@@ -297,11 +294,12 @@ def wysiwyg_dialog(editor, field):
         }
     d = MyDialog(None, bodyhtml)
     # exec_() doesn't work, see  https://stackoverflow.com/questions/39638749/
-    d.finished.connect(editor.on_WYSIWYGdialog_finished)
+    #d.finished.connect(editor.on_WYSIWYGdialog_finished)
+    d.finished.connect(lambda status, func=on_WYSIWYGdialog_finished, e=editor: func(e, status))
     d.setModal(True)
     d.show()
     d.web.setFocus()
-Editor.wysiwyg_dialog = wysiwyg_dialog
+
 
 
 def readfile():
@@ -316,7 +314,7 @@ def external_editor_start(editor):
         tooltip("no field focussed. Aborting ...")        
         return
     editor.myfield = editor.currentField
-    editor.saveNow(lambda: editor.wysiwyg_dialog(editor.myfield))
+    editor.saveNow(lambda e=editor, f=editor.myfield: wysiwyg_dialog(e,f))
 
 
 def keystr(k):
