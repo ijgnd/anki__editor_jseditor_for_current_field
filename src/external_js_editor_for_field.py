@@ -329,7 +329,7 @@ def setupEditorButtonsFilter(buttons, editor):
     cut = gc("shortcut: open dialog")
     tip = "edit current field in external window"
     if cut:
-        tip += "({})".format(keystr(gc('tinymce4Hotkey')))
+        tip += " ({})".format(keystr(cut))
     b = editor.addButton(
         icon=None,  # os.path.join(addon_path, "icons", "tm.png"),
         cmd="T5",
