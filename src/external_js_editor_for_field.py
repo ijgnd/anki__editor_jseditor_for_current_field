@@ -121,7 +121,7 @@ tinymce.init({
 
 addon_path = os.path.dirname(__file__)
 addonfoldername = os.path.basename(addon_path)
-regex = r"(web/.*)"
+regex = r"(web[/\\].*)"
 mw.addonManager.setWebExports(__name__, regex)
 web_path = "/_addons/%s/web/" % addonfoldername
 
