@@ -261,6 +261,9 @@ class MyDialog(QDialog):
 
 
 def _onWYSIWYGUpdateField(editor):
+    if not isinstance(editedfieldcontent, str):
+        tooltip("Unknown error in Add-on. Aborting ...")
+        return
     editor.note.fields[editor.myfield] = editedfieldcontent
     editor.note.flush()
     editor.loadNote(focusTo=editor.myfield)
