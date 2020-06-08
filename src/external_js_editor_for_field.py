@@ -265,7 +265,8 @@ def _onWYSIWYGUpdateField(editor):
         tooltip("Unknown error in Add-on. Aborting ...")
         return
     editor.note.fields[editor.myfield] = editedfieldcontent
-    editor.note.flush()
+    if not editor.addMode:
+        editor.note.flush()
     editor.loadNote(focusTo=editor.myfield)
 
 
