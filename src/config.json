@@ -1,6 +1,10 @@
 {
     "Ckeditor4 - enable": true,
     "Ckeditor4 - shortcut": "Ctrl+Alt+0",
+    "Ckeditor5 - enable": true,
+    "Ckeditor5 - shortcut": "Ctrl+Alt+Shift+0",
+    "TinyMCE4 - enable": true,
+    "TinyMCE4 - shortcut": "Alt+Shift+0",     
     "font": "Times New Roman",
     "fontSize": "20",
     "shortcut: open dialog": "Ctrl+0",

@@ -52,6 +52,14 @@ This add-on bundles the ckeditor theme "moono-dark" in  web/ckeditor4/skins/moon
 This add-on bundles jquery3.5.1 in the folder web/ckeditor4
     Copyright: JS Foundation and other contributors 
     License: jquery.org/license (MIT)
+
+
+
+This add-on bundles "CKEditor 5 classic editor build" (version 19.1.1) in the folder web/ckeditor5
+    https://github.com/ckeditor/ckeditor5-build-classic
+    Copyright (c) 2003-2020, [CKSource](http://cksource.com) Frederico Knabben. All rights reserved.
+    Licensed under the terms of [GNU General Public License Version 2 or later](http://www.gnu.org/licenses/gpl.html).
+
 """
 
 import os
@@ -149,21 +157,17 @@ other_cssfiles = []
 cssfiles = addon_cssfiles + other_cssfiles
 
 
-addon_jsfiles = ["tinymce5/js/tinymce/tinymce.min.js",
-                 "ckeditor4/ckeditor.js",
-                 ]
+addon_jsfiles = []
 other_jsfiles = ["jquery.js",
                  ]
-jsfiles = addon_jsfiles + other_jsfiles
 
 
 class MyWebView(AnkiWebView):
-
     def sync_execJavaScript(self, script):
         return sync_execJavaScript(self, script)
 
     def bundledScript(self, fname):
-        if fname in addon_jsfiles:
+        if fname in addon_jsfiles + other_jsfiles:
             return '<script src="%s"></script>' % (web_path + fname)
         else:
             return '<script src="%s"></script>' % self.webBundlePath(fname)
@@ -252,7 +256,7 @@ class MyDialog(QDialog):
         zoomOut_Shortcut = QShortcut(QKeySequence("Ctrl+-"), self)
         zoomOut_Shortcut.activated.connect(self.web.zoom_out)
 
-        self.web.stdHtml(bodyhtml, cssfiles, jsfiles)
+        self.web.stdHtml(bodyhtml, cssfiles, addon_jsfiles + other_jsfiles)
 
     def onAccept(self):
         global editedfieldcontent
@@ -293,16 +297,38 @@ def on_WYSIWYGdialog_finished(editor, status):
         editor.saveNow(lambda e=editor: _onWYSIWYGUpdateField(e))
 
 
-hiliters_tinymce5 = """
+hiliters_tinymce = """
     // TODO change to class applier
     hilite(editor, tinymce, 'hiliteGreen',"#00ff00",'alt+w','GR');
     hilite(editor, tinymce, 'hiliteBlue',"#00ffff",'alt+e','BL'); 
     hilite(editor, tinymce, 'hiliteRed',"#fd9796",'alt+r','RE'); 
     hilite(editor, tinymce, 'hiliteYellow',"#ffff00",'alt+q','YE');
-"""
+"""   
 
 
 def wysiwyg_dialog(editor, field, editorname):
+    global addon_jsfiles
+
+    editors_dict = {
+        "T4": "tinymce4/js/tinymce/tinymce.min.js",
+        "T5": "tinymce5/js/tinymce/tinymce.min.js",
+        "cked4": "ckeditor4/ckeditor.js",
+        "cked5": "ckeditor5/ckeditor.js",
+    }
+    addon_jsfiles = [editors_dict[editorname]]
+    print(f"editorname is {editorname}, addon_jsfiles is {addon_jsfiles}")
+    if editorname == "T4":
+        # TODO
+        jssavecmd = "tinyMCE.activeEditor.getContent();"
+        wintitle = 'Anki - edit current field in TinyMCE4'
+        dialogname = "tinymce4"
+        bodyhtml = templatecontent_tinymce4 % {
+            "FONTSIZE": gc('fontSize'),
+            "FONTNAME": gc('font'),
+            "CUSTOMBGCOLOR": "#e4e2e0",
+            "HILITERS": hiliters_tinymce if gc("show background color buttons") else "",
+            "CONTENT": editor.note.fields[field],
+            }
     if editorname == "T5":
         jssavecmd = "tinyMCE.activeEditor.getContent();"
         wintitle = 'Anki - edit current field in TinyMCE5'
@@ -310,12 +336,12 @@ def wysiwyg_dialog(editor, field, editorname):
         bodyhtml = templatecontent_tinymce5 % {
             "FONTSIZE": gc('fontSize'),
             "FONTNAME": gc('font'),
-            "CUSTOMBGCOLOR": "" if theme_manager.night_mode else """this.getDoc().body.style.backgroundColor = '#e4e2e0'""",
+            "CUSTOMBGCOLOR": "" if theme_manager.night_mode else """this.getDoc().body.style.backgroundColor = '#e4e2e0';""",
             #  https://www.tiny.cloud/blog/dark-mode-tinymce-rich-text-editor/
             "CONTENTCSS": '"dark",' if theme_manager.night_mode else "",
             "SKIN": "oxide-dark" if theme_manager.night_mode else "oxide",
             "THEME": "silver",
-            "HILITERS": hiliters if gc("show background color buttons") else "",
+            "HILITERS": hiliters_tinymce if gc("show background color buttons") else "",
             "CONTENT": editor.note.fields[field],
             }
     if editorname == "cked4":
@@ -331,6 +357,21 @@ def wysiwyg_dialog(editor, field, editorname):
             "SKIN": "moono-dark" if theme_manager.night_mode else "moono",
             "CONTENT": editor.note.fields[field],
             }
+    if editorname == "cked5":
+        # TODO
+        jssavecmd = "CKEDITOR.instances.cked5_editor.getData();" #""cked4_editor.getData();"
+        wintitle = 'Anki - edit current field in ckEditor5'
+        dialogname = "cked5"
+        bodyhtml = templatecontent_cked5 % {
+            "FONTSIZE": gc('fontSize'),
+            "FONTNAME": gc('font'),
+            "BASEURL": f"http://127.0.0.1:{mw.mediaServer.getPort()}/",
+            "CUSTOMBGCOLOR": "#2f2f31" if theme_manager.night_mode else "#e4e2e0",
+            "CUSTOMCOLOR": "white" if theme_manager.night_mode else "black",
+            "SKIN": "moono-dark" if theme_manager.night_mode else "moono",
+            "CONTENT": editor.note.fields[field],
+            }
+    print(bodyhtml)
     d = MyDialog(None, bodyhtml, jssavecmd, wintitle, dialogname)
     # exec_() doesn't work, see  https://stackoverflow.com/questions/39638749/
     #d.finished.connect(editor.on_WYSIWYGdialog_finished)
@@ -345,8 +386,10 @@ def readfile(file):
     filefullpath = os.path.join(addon_path, file)
     with io.open(filefullpath, 'r', encoding='utf-8') as f:
         return f.read()
+templatecontent_tinymce4 = readfile("template_tiny4_body.html")
 templatecontent_tinymce5 = readfile("template_tiny5_body.html")
 templatecontent_cked4 = readfile("template_cked4_body.html")
+templatecontent_cked5 = readfile("template_cked5_body.html")
 
 
 def external_editor_start(editor, editorname):
@@ -368,16 +411,28 @@ def setupEditorButtonsFilter(buttons, editor):
     if cut_T5:
         tip_T5 += " ({})".format(keystr(cut_T5))
 
+    cut_T4 = gc("TinyMCE4 - shortcut")
+    tip_T4 = "edit current field with TinyMCE4"
+    if cut_T4:
+        tip_T4 += " ({})".format(keystr(cut_T4))
+
     cut_cked4 = gc("Ckeditor4 - shortcut")
     tip_cked4 = "edit current field in ckeditor4"
     if cut_cked4:
         tip_cked4 += " ({})".format(keystr(cut_cked4))
 
+    cut_cked5 = gc("Ckeditor5 - shortcut")
+    tip_cked5 = "edit current field in ckeditor5"
+    if cut_cked5:
+        tip_cked5 += " ({})".format(keystr(cut_cked5))
+
     arglist = [
         #  0                          1          2          3            4       5
         # show                     shortcut    tooltip   functionarg    cmd     icon 
         [True,                     cut_T5,    tip_T5,     "T5"     ,  "T5",      None],
-        [gc("Ckeditor4 - enable"), cut_cked4, tip_cked4,  "cked4"  ,  "c4",      None]
+        [gc("TinyMCE4 - enable"),  cut_T4,    tip_T4,     "T4"     ,  "T4",      None],
+        [gc("Ckeditor4 - enable"), cut_cked4, tip_cked4,  "cked4"  ,  "c4",      None],
+        [gc("Ckeditor5 - enable"), cut_cked5, tip_cked5,  "cked5"  ,  "c5",      None],
     ]
 
     for line in arglist:
