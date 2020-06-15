@@ -1,4 +1,6 @@
 {
+    "Ckeditor4 - enable": true,
+    "Ckeditor4 - shortcut": "Ctrl+Alt+0",
     "font": "Times New Roman",
     "fontSize": "20",
     "shortcut: open dialog": "Ctrl+0",
