@@ -57,12 +57,15 @@ I mean this code:
 */
 
 
-
 CKEDITOR.replace('cked4_editor', {
     on: {
         instanceReady: function (evt) {
             evt.editor.execCommand('maximize');
-            // this.document.appendStyleSheet('../ckeditor4.css');  // didn't work - I use CKEDITOR.addCss below
+            /* append css file
+            https://stackoverflow.com/questions/18782939/ckeditor-4-how-to-add-css-stylesheet-from-plugin#18784248
+            */
+            // this.document.appendStyleSheet('../ckeditor4.css');  // relative doesn't work for me
+            this.document.appendStyleSheet('%(WEBPATH)sckeditor4.css');
         },
     }
 });
@@ -121,12 +124,37 @@ CKEDITOR.config.skin = '%(SKIN)s';
 CKEDITOR.editorConfig = function (config) {
     config.language = 'en';
 };
+//https://ckeditor.com/cke4/addon/pastefromlibreoffice
+CKEDITOR.config.extraPlugins = 'pastefromlibreoffice';
+
+// https://ckeditor.com/cke4/addon/copyformatting  
+CKEDITOR.config.extraPlugins = 'copyformatting';
+
+// Show Table Borders, https://ckeditor.com/cke4/addon/showborders
+// CKEDITOR.config.extraPlugins = 'showborders';  // no effect in 2020-07?
+
+// Table Resize (tableresize), https://ckeditor.com/cke4/addon/tableresize
+CKEDITOR.config.extraPlugins = 'tableresize';  // doesn't work with indent/indentblock
+
+// Stylesheet Parser, https://ckeditor.com/cke4/addon/stylesheetparser
+// doesn't work in 2020-07 with my config right away. I wasn't motivated to look into this
+// CKEDITOR.config.extraPlugins = 'stylesheetparser'; 
+
+// Auto Link, https://ckeditor.com/cke4/addon/autolink
+CKEDITOR.config.extraPlugins = 'autolink';  // doesn't work in 2020-07 with my config
+
+// Image Resizer(Width and Height), https://ckeditor.com/cke4/addon/imageresizerowandcolumn
+// in 2020-07 with 4.14.1: doesn't work right away so I ignore it
+// CKEDITOR.config.extraPlugins = 'imageresizerowandcolumn';
+
 //https://github.com/xiidea/ckeditor-easykeymap-plugin  
 //keymap plugin needs wysiwygarea
-CKEDITOR.config.extraPlugins = 'wysiwygarea';
+// CKEDITOR.config.extraPlugins = 'wysiwygarea';
+
 CKEDITOR.config.extraPlugins = 'indentblock';
 CKEDITOR.config.extraPlugins = 'indent';
-// hide status bar named Elements Path
+
+// hide status bar named Elements Path - still working/needed in 4.14.1
 // c.f. http://drupal.stackexchange.com/questions/62406/how-to-remove-the-status-bar-from-ckeditor
 CKEDITOR.config.removePlugins = 'elementspath';
 CKEDITOR.config.resize_enabled = false;
@@ -212,7 +240,7 @@ CKEDITOR.config.toolbar = [{
     {
         name: 'basicstyles',
         groups: ['basicstyles', 'cleanup'],
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Superscript', 'Subscript', '-', 'RemoveFormat']
+        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Superscript', 'Subscript', '-', 'CopyFormatting', '-', 'RemoveFormat']
     },
     {
         name: 'styles',

@@ -55,11 +55,15 @@ This add-on bundles "ckEditor4" (version 4.14.1) in the folder web/ckeditor4_new
     Licensed under the terms of any of the following licenses at your choice:
     GNU General Public License Version 2 or later (the "GPL"), http://www.gnu.org/licenses/gpl.html
     for details see web/ckeditor4_new/LICENSE.md
-
-
-This add-on bundles the ckeditor theme "moono-dark" in  web/ckeditor4_new/skins/moono-dark/
-    downloaded form https://ckeditor.com/cke4/addon/moono-dark
-    Copyright and License are the same as ckedtior4 according to web/ckeditor4/skins/moono-dark/readme.md
+I added the following plugins and skins which have the same copyright and permission notice:
+    - moono-dark,  https://ckeditor.com/cke4/addon/moono-dark
+    - moono, https://ckeditor.com/cke4/addon/moono
+    - pastefromlibreoffice, https://ckeditor.com/cke4/addon/pastefromlibreoffice
+    - Tab Key Handling, https://ckeditor.com/cke4/addon/tab
+    - Show Table Borders (showborders), https://ckeditor.com/cke4/addon/showborders
+    - Table Resize (tableresize), https://ckeditor.com/cke4/addon/tableresize
+    - Stylesheet Parser, https://ckeditor.com/cke4/addon/stylesheetparser
+    - Auto Link, https://ckeditor.com/cke4/addon/autolink
 
 
 This add-on bundles "jquery-3.5.1.min.js" in the folder web which has this copyright and permission
@@ -402,6 +406,7 @@ def wysiwyg_dialog(editor, field, editorname):
             "FONTSIZE": gc('fontSize'),
             "FONTNAME": gc('font'),
             "BASEURL": f"http://127.0.0.1:{mw.mediaServer.getPort()}/",
+            "WEBPATH": f"http://127.0.0.1:{mw.mediaServer.getPort()}{web_path}",
             "CUSTOMBGCOLOR": "#2f2f31" if theme_manager.night_mode else "#e4e2e0",
             "CUSTOMCOLOR": "white" if theme_manager.night_mode else "black",
             "SKIN": "moono-dark" if theme_manager.night_mode else "moono",
@@ -415,9 +420,10 @@ def wysiwyg_dialog(editor, field, editorname):
             "FONTSIZE": gc('fontSize'),
             "FONTNAME": gc('font'),
             "BASEURL": f"http://127.0.0.1:{mw.mediaServer.getPort()}/",
+            "WEBPATH": f"http://127.0.0.1:{mw.mediaServer.getPort()}{web_path}",
             "CUSTOMBGCOLOR": "#2f2f31" if theme_manager.night_mode else "#e4e2e0",
             "CUSTOMCOLOR": "white" if theme_manager.night_mode else "black",
-            "SKIN": "moono-dark" if theme_manager.night_mode else "moono-lisa",
+            "SKIN": "moono-dark" if theme_manager.night_mode else "moono", # "moono-lisa",
             "CONTENT": editor.note.fields[field],
             }
     if editorname == "cked5":

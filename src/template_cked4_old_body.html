@@ -62,7 +62,11 @@ CKEDITOR.replace('cked4_editor', {
     on: {
         instanceReady: function (evt) {
             evt.editor.execCommand('maximize');
-            // this.document.appendStyleSheet('../ckeditor4.css');  // didn't work - I use CKEDITOR.addCss below
+            /* append css file
+            https://stackoverflow.com/questions/18782939/ckeditor-4-how-to-add-css-stylesheet-from-plugin#18784248
+            */
+            // this.document.appendStyleSheet('../ckeditor4.css');  // relative doesn't work for me
+            this.document.appendStyleSheet('%(WEBPATH)sckeditor4.css');
         },
     }
 });
@@ -119,9 +123,11 @@ CKEDITOR.config.skin = '%(SKIN)s';
 CKEDITOR.editorConfig = function (config) {
     config.language = 'en';
 };
-//https://github.com/xiidea/ckeditor-easykeymap-plugin  
-//keymap plugin needs wysiwygarea
-CKEDITOR.config.extraPlugins = 'wysiwygarea';
+//no longer used by me:
+    //https://github.com/xiidea/ckeditor-easykeymap-plugin  
+    //keymap plugin needs wysiwygarea
+    //CKEDITOR.config.extraPlugins = 'wysiwygarea';
+
 CKEDITOR.config.extraPlugins = 'indentblock';
 CKEDITOR.config.extraPlugins = 'indent';
 // hide status bar named Elements Path
