@@ -1,0 +1,273 @@
+<script src="../jquery-3.5.1.min.js"></script>
+<textarea id="cked4_editor">%(CONTENT)s</textarea>
+
+<script>
+/*
+my color button functions that work outside of Anki in Firefox or Chrome
+are not included because they don't work. Instead of highlighting
+the selected is replaced and highlighted.
+I tried with a minimal example editor where all the rest of the config is removed and it 
+still didn't work.
+I mean this code:
+
+    <!DOCTYPE html>
+    <html>
+
+    <head>
+        <title>CKEditor</title>
+        <script src="ckeditor4_old/ckeditor.js">< /script>
+        <script src="jquery-3.5.1.min.js">< /script>
+    </head>
+
+    <body>
+        <textarea id="cked4_editor"></textarea>
+        <script>
+            CKEDITOR.replace('cked4_editor', {
+                on: {
+                    instanceReady: function (evt) {
+                        evt.editor.execCommand('maximize');
+                    },
+
+                    key: function (event) {
+                        var styles = [];
+                        this.getStylesSet(function (defs) {
+                            styles = defs
+                        });
+
+                        // Alt + e  69    // Alt+r 82   // Alt+w 87
+                        if (event.data.keyCode == CKEDITOR.ALT + 87) {
+                            this.fire('saveSnapshot');
+                            var styleMarkerRed = new CKEDITOR.style({
+                                    element: 'span',
+                                    styles: {
+                                        'background-color': '#FF00FF'
+                                    }
+                                }),
+                                elementPath = this.elementPath();
+                            this[styleMarkerRed.checkActive(elementPath) ? 'removeStyle' : 'applyStyle'](
+                                styleMarkerRed);
+                            this.fire('saveSnapshot');
+                        }
+                    }
+                }
+            });
+        < /script>
+    </body>
+    </html>
+*/
+
+
+
+CKEDITOR.replace('cked4_editor', {
+    on: {
+        instanceReady: function (evt) {
+            evt.editor.execCommand('maximize');
+            // this.document.appendStyleSheet('../ckeditor4.css');  // didn't work - I use CKEDITOR.addCss below
+        },
+    }
+});
+
+// https://stackoverflow.com/a/11400271
+CKEDITOR.on('instanceReady', function (e) {
+    // First time
+    e.editor.document.getBody().setStyle('background-color', '%(CUSTOMBGCOLOR)s');
+    e.editor.document.getBody().setStyle('color', '%(CUSTOMCOLOR)s');
+    // doesn't work for font name and font size
+    //e.editor.document.getBody().setStyle('font-family:', '%(FONTNAME)s');
+    //e.editor.document.getBody().setStyle('font-size:', '%(FONTSIZE)spx');
+    // in case the user switches to source and back
+    e.editor.on('contentDom', function () {
+        e.editor.document.getBody().setStyle('background-color', '%(CUSTOMBGCOLOR)s');
+        e.editor.document.getBody().setStyle('color', '%(CUSTOMCOLOR)s');
+        //e.editor.document.getBody().setStyle('font-family:', '%(FONTNAME)s');
+        //e.editor.document.getBody().setStyle('font-size:', '%(FONTSIZE)spx');
+    });
+});
+
+
+// https://stackoverflow.com/a/55144885
+CKEDITOR.addCss(`
+.cke_editable { 
+    cursor: text; 
+    font-size: %(FONTSIZE)spx; 
+    font-family: %(FONTNAME)s, sans-serif;
+}
+body {
+    line-height: 1.2 !important;
+    margin:0;
+    padding:0;
+}
+p {
+    margin:0;
+}
+a:link {
+    text-decoration: none;
+}
+sup, sub {
+   font-size: 68%%;
+   vertical-align: baseline;
+   position: relative;
+   top: -0.4em;
+}
+sub { 
+    top: 0.4em;
+}
+`);
+CKEDITOR.config.baseHref = '%(BASEURL)s';
+CKEDITOR.config.skin = '%(SKIN)s';
+// CKEDITOR.config.removePlugins = 'contextmenu';
+CKEDITOR.editorConfig = function (config) {
+    config.language = 'en';
+};
+//https://github.com/xiidea/ckeditor-easykeymap-plugin  
+//keymap plugin needs wysiwygarea
+CKEDITOR.config.extraPlugins = 'wysiwygarea';
+CKEDITOR.config.extraPlugins = 'indentblock';
+CKEDITOR.config.extraPlugins = 'indent';
+// hide status bar named Elements Path
+// c.f. http://drupal.stackexchange.com/questions/62406/how-to-remove-the-status-bar-from-ckeditor
+CKEDITOR.config.removePlugins = 'elementspath';
+CKEDITOR.config.resize_enabled = false;
+
+//  http://docs.ckeditor.com/#!/api/CKEDITOR.config-cfg-specialChars
+// CKEDITOR.config.wordcount = {showWordCount: true}; // no effect in 2019-02
+CKEDITOR.config.specialChars = ['&mdash;', '&rarr;', '&iexcl;', '&cent;', '&pound;', '&curren;',
+    '&yen;', '&brvbar;', '&sect;', '&uml;', '&copy;', '&ordf;', '&laquo;', '&not;', '&reg;', '&macr;',
+    '&deg;', '&sup2;', '&sup3;', '&acute;', '&micro;', '&para;', '&middot;', '&cedil;', '&sup1;',
+    '&ordm;', '&raquo;', '&frac14;', '&frac12;', '&frac34;', '&iquest;', '&Agrave;', '&Aacute;',
+    '&Acirc;', '&Atilde;', '&Auml;', '&Aring;', '&AElig;', '&Ccedil;', '&Egrave;', '&Eacute;',
+    '&Ecirc;', '&Euml;', '&Igrave;', '&Iacute;', '&Icirc;', '&Iuml;', '&ETH;', '&Ntilde;', '&Ograve;',
+    '&Oacute;', '&Ocirc;', '&Otilde;', '&Ouml;', '&times;', '&Oslash;', '&Ugrave;', '&Uacute;',
+    '&Ucirc;', '&Uuml;', '&Yacute;', '&THORN;', '&szlig;', '&agrave;', '&aacute;', '&acirc;',
+    '&atilde;', '&auml;', '&aring;', '&aelig;', '&ccedil;', '&egrave;', '&eacute;', '&ecirc;',
+    '&euml;', '&igrave;', '&iacute;', '&icirc;', '&iuml;', '&eth;', '&ntilde;', '&ograve;',
+    '&oacute;', '&ocirc;', '&otilde;', '&ouml;', '&divide;', '&oslash;', '&ugrave;',
+    '&uacute;', '&ucirc;', '&uuml;', '&yacute;', '&thorn;', '&yuml;', '&OElig;', '&oelig;',
+    '&#372;', '&#374', '&#373', '&#375;', '&sbquo;', '&#8219;', '&bdquo;', '&hellip;', '&trade;',
+    '&#9658;', '&bull;', '&rarr;', '&hArr;', '&diams;', '&ndash;', '&asymp;'
+]
+
+
+//http://stackoverflow.com/questions/11949878/adding-fonts-available-in-ckeditor
+CKEDITOR.editorConfig = function (config) {
+    config.font_names =
+        'Times New Roman/Times New Roman, Times, serif;' +
+        'Droid Sans Mono, monospace;' +
+        'Arial/Arial, Helvetica, sans-serif;' +
+        'Courier New/Courier New, Courier, monospace;' +
+        'Georgia/Georgia, serif;' +
+        'Lucida Sans Unicode/Lucida Sans Unicode, Lucida Grande, sans-serif;' +
+        'Tahoma/Tahoma, Geneva, sans-serif;' +
+        'Trebuchet MS/Trebuchet MS, Helvetica, sans-serif;' +
+        'Calibri/Calibri, Verdana, Geneva, sans-serif;' +
+        'Verdana/Verdana, Geneva, sans-serif';
+};
+
+
+// vgl. http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
+CKEDITOR.config.keystrokes = [
+    [CKEDITOR.CTRL + 77 /*M*/ , 'indent'],
+    [CKEDITOR.CTRL + CKEDITOR.SHIFT + 77 /*M*/ , 'outdent'],
+    [CKEDITOR.CTRL + 74 /*J*/ , 'superscript'],
+    [CKEDITOR.CTRL + 75 /*K*/ , 'subscript'],
+    [CKEDITOR.CTRL + 72 /*H*/ , 'source'],
+    [CKEDITOR.CTRL + CKEDITOR.SHIFT + 78 /*N*/ , 'source'],
+    [CKEDITOR.CTRL + CKEDITOR.SHIFT + 81 /*Q*/ , 'source'],
+    [CKEDITOR.CTRL + CKEDITOR.SHIFT + 76 /*L*/ , 'link'],
+];
+
+CKEDITOR.config.toolbar = [{
+        name: 'document',
+        groups: ['mode', 'document', 'doctools'],
+        items: ['Source']
+    },
+    {
+        name: 'clipboard',
+        groups: ['clipboard', 'undo'],
+        items: ['PasteFromWord', '-', 'Undo', 'Redo']
+    },
+    {
+        name: 'editing',
+        groups: ['find', 'selection', 'spellchecker'],
+        items: ['Replace']
+    },
+    {
+        name: 'paragraph',
+        groups: ['list', 'indent', 'blocks', 'align', 'bidi'],
+        items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-',
+            'JustifyLeft', 'JustifyCenter', 'JustifyBlock', '-', 'BidiLtr'
+        ]
+    },
+    {
+        name: 'links',
+        items: ['Link', 'Unlink', 'Anchor']
+    },
+    {
+        name: 'insert',
+        items: ['Image', 'Table', 'SpecialChar']
+    },
+    '/',
+    {
+        name: 'basicstyles',
+        groups: ['basicstyles', 'cleanup'],
+        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Superscript', 'Subscript', '-', 'RemoveFormat']
+    },
+    {
+        name: 'styles',
+        items: ['Styles', 'Format', 'Font', 'FontSize']
+    },
+    {
+        name: 'colors',
+        items: ['TextColor', 'BGColor']
+    },
+];
+
+
+/*
+// some old ideas that don't work in 2020
+CKEDITOR.stylesSet.add( 'my_styles', [
+    { name: 'MarkerYellow', element: 'span', styles: { 'background-color': 'Yellow'} },
+    { name: 'MarkerGreen',  element: 'span', styles: { 'background-color': '#00FF00'} },
+    { name: 'MarkerRed',    element: 'span', styles: { 'background-color': '#FF00FF'} },
+    { name: 'MarkerCyan',   element: 'span', styles: { 'background-color': '#00FFFF'} },
+    { name: 'Typewriter',   element: 'tt'},
+    { name: 'Code',         element: 'code'},
+    { name: 'Deleted Text', element: 'del'},
+    { name: 'Inserted Text',element: 'ins'},
+
+    // Object Styles
+    {
+        name: 'Styled image (left)',
+        element: 'img',
+        attributes: {'class': 'left'}
+    },
+    {
+        name: 'Styled image (right)',
+        element: 'img',
+        attributes: {'class': 'right'}
+    },
+    {
+        name: 'Compact table',
+        element: 'table',
+        attributes: {
+            cellpadding: '5',
+            cellspacing: '0',
+            border: '1',
+            bordercolor: '#ccc'
+        },
+        styles: {
+            'border-collapse': 'collapse'
+        }
+    },
+    { name: 'Borderless Table',     element: 'table', styles: {'border-style': 'hidden', 'background-color': '#E6E6FA' } },
+    { name: 'Square Bulleted List', element: 'ul',    styles: {'list-style-type': 'square' } }
+]
+);
+*/
+
+// plugin from https://github.com/w8tcha/CKEditor-TextSelection-Plugin
+// found http://ckeditor.com/comment/123133#comment-123133
+// when switching to source move cursor to correct position
+// CKEDITOR.config.extraPlugins = 'textselection';  // BREAKS the rest in 2020
+</script>
+
