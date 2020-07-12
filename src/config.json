@@ -1,12 +1,13 @@
 {
     "Ckeditor4 - enable": true,
-    "Ckeditor4 - shortcut": "Ctrl+Alt+0",
-    "Ckeditor5 - enable": true,
-    "Ckeditor5 - shortcut": "Ctrl+Alt+Shift+0",
+    "Ckeditor4 - shortcut to open dialog": "",
+    "Ckeditor4 (old version) - enable": true,
+    "Ckeditor4 (old version) - shortcut to open dialog": "",
     "TinyMCE4 - enable": true,
-    "TinyMCE4 - shortcut": "Alt+Shift+0",     
+    "TinyMCE4 - shortcut to open dialog": "",
+    "TinyMCE5 - enable": true,  
+    "TinyMCE5 - shortcut to open dialog": "Ctrl+0",
     "font": "Times New Roman",
     "fontSize": "20",
-    "shortcut: open dialog": "Ctrl+0",
     "show background color buttons": false
 }
