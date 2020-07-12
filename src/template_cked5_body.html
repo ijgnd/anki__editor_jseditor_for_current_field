@@ -1,0 +1,30 @@
+<script src="jquery-3.5.1.min.js"></script>
+<style scoped>
+/* https://stackoverflow.com/questions/46559354/how-to-set-the-height-of-ckeditor-5-classic-editor */
+.ck-.ck-editor__editable {
+    height:90vh;
+}
+</style>
+
+<div id="cked5_editor">
+    %(CONTENT)s
+</div>
+
+<script>
+ClassicEditor
+    .create( document.querySelector( '#cked5_editor' ), {
+        // toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
+    } )
+    .then( editor => {
+        cked5_editor = editor;
+    } )
+    .catch( err => {
+        console.error( err.stack );
+    } );
+
+
+// in cked4 that images from the media folder with relative links are displayed I use
+// but in 2020-06-15 this doesn't work in cked5, see https://ckeditor.com/docs/ckeditor5/latest/builds/guides/migrate.html
+// Not supported yet, see the relevant GitHub issue, https://github.com/ckeditor/ckeditor5/issues/665
+// CKEDITOR.config.baseHref =  '%(BASEURL)s';
+</script>
