@@ -363,7 +363,7 @@ def wysiwyg_dialog(editor, field, editorname):
         "T4": "tinymce4/js/tinymce/tinymce.min.js",
         "T5": "tinymce5/js/tinymce/tinymce.min.js",
         "cked4old": "ckeditor4_old/ckeditor.js",
-        "cked4": "ckeditor4/ckeditor.js",
+        "cked4": "ckeditor4_new/ckeditor.js",
         "cked5": "ckeditor5/ckeditor.js",
     }
     addon_jsfiles = [editors_dict[editorname]]
@@ -396,7 +396,7 @@ def wysiwyg_dialog(editor, field, editorname):
             }
     if editorname == "cked4old":
         jssavecmd = "CKEDITOR.instances.cked4_editor.getData();" #""cked4_editor.getData();"
-        wintitle = 'Anki - edit current field in ckEditor4'
+        wintitle = 'Anki - edit current field in ckEditor4 (old)'
         dialogname = "cked4"
         bodyhtml = templatecontent_cked4old % {
             "FONTSIZE": gc('fontSize'),
@@ -417,7 +417,7 @@ def wysiwyg_dialog(editor, field, editorname):
             "BASEURL": f"http://127.0.0.1:{mw.mediaServer.getPort()}/",
             "CUSTOMBGCOLOR": "#2f2f31" if theme_manager.night_mode else "#e4e2e0",
             "CUSTOMCOLOR": "white" if theme_manager.night_mode else "black",
-            "SKIN": "moono-dark" if theme_manager.night_mode else "moono",
+            "SKIN": "moono-dark" if theme_manager.night_mode else "moono-lisa",
             "CONTENT": editor.note.fields[field],
             }
     if editorname == "cked5":
