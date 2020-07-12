@@ -1,21 +1,32 @@
-<b>update notice: The latest version supports Anki's built-in night mode which was redesigned with Anki version 2.1.20. So this add-on also requires at least 2.1.20 now.</b>
-
-This add-on loads the content of a field from the editor into a new dialog with the wysiwyg html editor <a href="https://en.wikipedia.org/wiki/TinyMCE" rel="nofollow">tinymce</a>. To open this editor click the "T5" button or use the shortcut (adjustable from the add-on config).
+This add-on loads the content of a field from the editor into a new dialog with the wysiwyg html editor <a href="https://en.wikipedia.org/wiki/TinyMCE" rel="nofollow">tinymce</a>. To open this editor click the "T5" button or use the shortcut (adjustable from the add-on config). In the config you can also select another editor like tinymce4, ckeditor4.
 
 This editor offers some advanced editing options especially with regard to tables: You can add or delete rows or columns. You can style the table. You can merge cells. You can style the borders and background colors, etc. 
 
 Drag and Drop of content is not supported. You can paste into this dialog. But I would only paste text from my pdf reader or text editor. I wouldn't paste content from websites because (contrary to the Anki editor) images are not downloaded and the html is not cleaned. the html is not cleaned this might cause problems and/or vulnerabilities in the long run.
 
-General point: Use this at your own risk. If you find a problem, bug, or have a bug fix or improvement let me  know <a href="https://anki.tenderapp.com/discussions/add-ons/41285-extended-table-editor-official-thread?" rel="nofollow">in the official anki support forum</a>, on  <a href="https://github.com/ijgnd/anki__editor_jseditor_for_current_field" rel="nofollow">github</a> or on reddit (/u/ijgnord).
+You can apply custom css to the editor in the extra dialog by putting it into a file named "_tinymce_custom.css" in the media folder of your profile. I don't need this so I don't know how this interacts with the tinymce skin and theme I use.
 
-Thanks @/u/glutaniamte for pointing me to a way to display the images.
+General point: Use this at your own risk. If you find a problem, bug, or have a bug fix or improvement let me  know <a href="https://forums.ankiweb.net/t/extended-editor-for-field-for-tables-search-replace-official-thread/552" rel="nofollow">in the official anki support forum</a>, on  <a href="https://github.com/ijgnd/anki__editor_jseditor_for_current_field" rel="nofollow">github</a>.
 
-<img src="https://raw.githubusercontent.com/ijgnd/anki__editor_jseditor_for_current_field/master/screenshots/extended_table_editor.png"> 
+Thanks @/u/glutanimate for pointing me to a way to display the images.
 
-<b>Configuration</b>
-see the readme in the add-on configuration dialog.
+<img src="https://raw.githubusercontent.com/ijgnd/anki__editor_jseditor_for_current_field/master/screenshots/v5_nightmode.png"> 
 
-<b>Versions</b>
+<b># Configuration</b>
+see the readme in the add-on configuration dialog. You can also adjust the config files of the editors in the add-on folder. Keep in mind that updates of this add-on overwrite all changes in the add-on folder. So if you adjust files in the add-on folder keep backups and remember to reapply them after updating this add-on.
+
+<b># Old Anki Versions</b>
+If you have an older Anki version and can't update to a newer one you could try out an old version of this add-on which you can download as an ankiaddon from <a href="
+https://github.com/ijgnd/anki__editor_jseditor_for_current_field/releases/download/0.1/extended_.table._editor__old_v4__2020-04-28.ankiaddon" rel="nofollow">here</a>. This old version might not work anymore. I haven't tested it in a long time.
+
+<b># Versions</b>
+- 2020-07-   update tinymce to 5.4, readd old tinymce editor, add ckeditor with basic config. All editors besides tinymce5 are disabled by default.
+- 2020-06-08 adjust to Anki 2.1.28
+- 2020-06-04 fix for: external editor didn't start on some windows computers and  errors this caused.
+- 2020-05-24 don't try to run when editor.currentField is None
+- 2020-05-23 remove image related options from tinymce which could cause problems, make bg color buttons optional
+- 2020-05-22 read css for tinymce from the user media folder from file "_tinymce_custom.css". 
+- 2020-05-21 update tinymce to 5.3
 - 2020-05-20 night mode support, use v5 of tinymce (the wysiwyg component), Ctrl+Mousewheel for zooming, removed experimental option.
 - 2020-04-27 more robust handling of errors in config
 - 2020-03-06 remember window size, updated bundled tinymce
