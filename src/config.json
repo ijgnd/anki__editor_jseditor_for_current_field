@@ -1,9 +1,9 @@
 {
-    "Ckeditor4 - enable": true,
+    "Ckeditor4 - enable": false,
     "Ckeditor4 - shortcut to open dialog": "",
-    "Ckeditor4 (old version) - enable": true,
+    "Ckeditor4 (old version) - enable": false,
     "Ckeditor4 (old version) - shortcut to open dialog": "",
-    "TinyMCE4 - enable": true,
+    "TinyMCE4 - enable": false,
     "TinyMCE4 - shortcut to open dialog": "",
     "TinyMCE5 - enable": true,  
     "TinyMCE5 - shortcut to open dialog": "Ctrl+0",
