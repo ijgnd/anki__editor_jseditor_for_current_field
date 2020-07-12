@@ -37,14 +37,27 @@ notice:
     License: GPLv3 or later, https://github.com/pycom/EricShort/blob/025a9933bdbe92f6ff1c30805077c59774fa64ab/LICENSE.GPL3
 
 
-This add-on bundles "ckEditor4" (version 4.3.4) in the folder web/ckeditor4
+This add-on bundles "ckEditor4" (version 4.3.4) in the folder web/ckeditor4_old
     Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
     Licensed under the terms of any of the following licenses at your choice:
     GNU General Public License Version 2 or later (the "GPL"), http://www.gnu.org/licenses/gpl.html
-    for details see web/ckeditor4/LICENSE.md
+    for details see web/ckeditor4_old/LICENSE.md
 
 
-This add-on bundles the ckeditor theme "moono-dark" in  web/ckeditor4/skins/moono-dark/
+This add-on bundles the ckeditor theme "moono-dark" in  web/ckeditor4_old/skins/moono-dark/
+    downloaded form https://ckeditor.com/cke4/addon/moono-dark
+    Copyright and License are the same as ckeditor4 according to web/ckeditor4/skins/moono-dark/readme.md
+
+
+
+This add-on bundles "ckEditor4" (version 4.14.1) in the folder web/ckeditor4_new
+    Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+    Licensed under the terms of any of the following licenses at your choice:
+    GNU General Public License Version 2 or later (the "GPL"), http://www.gnu.org/licenses/gpl.html
+    for details see web/ckeditor4_new/LICENSE.md
+
+
+This add-on bundles the ckeditor theme "moono-dark" in  web/ckeditor4_new/skins/moono-dark/
     downloaded form https://ckeditor.com/cke4/addon/moono-dark
     Copyright and License are the same as ckedtior4 according to web/ckeditor4/skins/moono-dark/readme.md
 
@@ -168,6 +181,16 @@ addonfoldername = os.path.basename(addon_path)
 regex = r"(web[/\\].*)"
 mw.addonManager.setWebExports(__name__, regex)
 web_path = "/_addons/%s/web/" % addonfoldername
+
+
+
+def update_config():
+    config = mw.addonManager.getConfig(__name__)
+    if "shortcut: open dialog" in config:
+        config["TinyMCE5 - shortcut to open dialog"] = config["shortcut: open dialog"]
+        del config["shortcut: open dialog"]
+        mw.addonManager.writeConfig(__name__, config)
+update_config()
 
 
 addon_cssfiles = ["webview_override.css",
@@ -302,9 +325,17 @@ class MyDialog(QDialog):
 
 
 def _onWYSIWYGUpdateField(editor):
+    global editedfieldcontent
     if not isinstance(editedfieldcontent, str):
         tooltip("Unknown error in Add-on. Aborting ...")
         return
+    to_remove = [
+        "<!--StartFragment-->",
+        "<!--EndFragment-->",
+    ]
+    for l in to_remove:
+        editedfieldcontent = editedfieldcontent.replace(l, "")
+
     editor.note.fields[editor.myfield] = editedfieldcontent
     if not editor.addMode:
         editor.note.flush()
@@ -331,11 +362,11 @@ def wysiwyg_dialog(editor, field, editorname):
     editors_dict = {
         "T4": "tinymce4/js/tinymce/tinymce.min.js",
         "T5": "tinymce5/js/tinymce/tinymce.min.js",
+        "cked4old": "ckeditor4_old/ckeditor.js",
         "cked4": "ckeditor4/ckeditor.js",
         "cked5": "ckeditor5/ckeditor.js",
     }
     addon_jsfiles = [editors_dict[editorname]]
-    print(f"editorname is {editorname}, addon_jsfiles is {addon_jsfiles}")
     if editorname == "T4":
         # TODO
         jssavecmd = "tinyMCE.activeEditor.getContent();"
@@ -363,6 +394,19 @@ def wysiwyg_dialog(editor, field, editorname):
             "HILITERS": hiliters_tinymce if gc("show background color buttons") else "",
             "CONTENT": editor.note.fields[field],
             }
+    if editorname == "cked4old":
+        jssavecmd = "CKEDITOR.instances.cked4_editor.getData();" #""cked4_editor.getData();"
+        wintitle = 'Anki - edit current field in ckEditor4'
+        dialogname = "cked4"
+        bodyhtml = templatecontent_cked4old % {
+            "FONTSIZE": gc('fontSize'),
+            "FONTNAME": gc('font'),
+            "BASEURL": f"http://127.0.0.1:{mw.mediaServer.getPort()}/",
+            "CUSTOMBGCOLOR": "#2f2f31" if theme_manager.night_mode else "#e4e2e0",
+            "CUSTOMCOLOR": "white" if theme_manager.night_mode else "black",
+            "SKIN": "moono-dark" if theme_manager.night_mode else "moono",
+            "CONTENT": editor.note.fields[field],
+            }
     if editorname == "cked4":
         jssavecmd = "CKEDITOR.instances.cked4_editor.getData();" #""cked4_editor.getData();"
         wintitle = 'Anki - edit current field in ckEditor4'
@@ -377,8 +421,12 @@ def wysiwyg_dialog(editor, field, editorname):
             "CONTENT": editor.note.fields[field],
             }
     if editorname == "cked5":
-        # TODO
-        jssavecmd = "CKEDITOR.instances.cked5_editor.getData();" #""cked4_editor.getData();"
+        """TODO 
+// in cked4 that images from the media folder with relative links are displayed I use
+// but in 2020-06-15 this doesn't work in cked5, see https://ckeditor.com/docs/ckeditor5/latest/builds/guides/migrate.html
+// Not supported yet, see the relevant GitHub issue, https://github.com/ckeditor/ckeditor5/issues/665
+"""
+        jssavecmd = "cked5_editor.getData();" #""cked4_editor.getData();"
         wintitle = 'Anki - edit current field in ckEditor5'
         dialogname = "cked5"
         bodyhtml = templatecontent_cked5 % {
@@ -390,7 +438,6 @@ def wysiwyg_dialog(editor, field, editorname):
             "SKIN": "moono-dark" if theme_manager.night_mode else "moono",
             "CONTENT": editor.note.fields[field],
             }
-    print(bodyhtml)
     d = MyDialog(None, bodyhtml, jssavecmd, wintitle, dialogname)
     # exec_() doesn't work, see  https://stackoverflow.com/questions/39638749/
     #d.finished.connect(editor.on_WYSIWYGdialog_finished)
@@ -408,6 +455,7 @@ def readfile(file):
 templatecontent_tinymce4 = readfile("template_tiny4_body.html")
 templatecontent_tinymce5 = readfile("template_tiny5_body.html")
 templatecontent_cked4 = readfile("template_cked4_body.html")
+templatecontent_cked4old = readfile("template_cked4_old_body.html")
 templatecontent_cked5 = readfile("template_cked5_body.html")
 
 
@@ -425,44 +473,49 @@ def keystr(k):
 
 
 def setupEditorButtonsFilter(buttons, editor):
-    cut_T5 = gc("shortcut: open dialog")
+    cut_T5 = gc("TinyMCE5 - shortcut to open dialog")
     tip_T5 = "edit current field in external window"
     if cut_T5:
         tip_T5 += " ({})".format(keystr(cut_T5))
 
-    cut_T4 = gc("TinyMCE4 - shortcut")
+    cut_T4 = gc("TinyMCE4 - shortcut to open dialog")
     tip_T4 = "edit current field with TinyMCE4"
     if cut_T4:
         tip_T4 += " ({})".format(keystr(cut_T4))
 
-    cut_cked4 = gc("Ckeditor4 - shortcut")
-    tip_cked4 = "edit current field in ckeditor4"
+    cut_cked4 = gc("Ckeditor4 - shortcut to open dialog")
+    tip_cked4 = "edit current field in ckeditor4 (html code of the field will be modified a lot (cleaned))"
     if cut_cked4:
         tip_cked4 += " ({})".format(keystr(cut_cked4))
 
-    cut_cked5 = gc("Ckeditor5 - shortcut")
+    cut_cked4old = gc("Ckeditor4 (old version) - shortcut to open dialog")
+    tip_cked4old = "edit current field in ckeditor4 (html code of the field will be modified a lot (cleaned))"
+    if cut_cked4old:
+        tip_cked4old += " ({})".format(keystr(cut_cked4old))
+
+    cut_cked5 = gc("Ckeditor5 - shortcut to open dialog")
     tip_cked5 = "edit current field in ckeditor5"
     if cut_cked5:
         tip_cked5 += " ({})".format(keystr(cut_cked5))
 
     arglist = [
-        #  0                          1          2          3            4       5
-        # show                     shortcut    tooltip   functionarg    cmd     icon 
-        [True,                     cut_T5,    tip_T5,     "T5"     ,  "T5",      None],
-        [gc("TinyMCE4 - enable"),  cut_T4,    tip_T4,     "T4"     ,  "T4",      None],
-        [gc("Ckeditor4 - enable"), cut_cked4, tip_cked4,  "cked4"  ,  "c4",      None],
-        [gc("Ckeditor5 - enable"), cut_cked5, tip_cked5,  "cked5"  ,  "c5",      None],
+        #  0                                       1           2            3            4       5
+        # show                                   shortcut     tooltip    functionarg    cmd    icon 
+        [gc("TinyMCE4 - enable")               , cut_T4,      tip_T4,      "T4"      ,  "T4",   None],
+        [gc("TinyMCE5 - enable")               , cut_T5,      tip_T5,      "T5"      ,  "T5",   None],
+        [gc("Ckeditor4 - enable")              , cut_cked4,   tip_cked4,   "cked4"   ,  "c4",   None],
+        [gc("Ckeditor4 (old version) - enable"), cut_cked4old,tip_cked4old,"cked4old",  "c4o",  None],
+        [gc("Ckeditor5 - enable")              , cut_cked5,   tip_cked5,   "cked5"   ,  "c5",   None],
     ]
-
     for line in arglist:
         if not line[0]:
-            return
+            continue
         b = editor.addButton(
             icon=line[5],  # os.path.join(addon_path, "icons", "tm.png"),
             cmd=line[4],
             func=lambda e=editor,n=line[3]: external_editor_start(e, n),
             tip=line[2],
-            keys=keystr(line[1]) if line[1] else ""
+            keys=keystr(line[1]) if line[1] else "",
             )
         buttons.append(b)
 
