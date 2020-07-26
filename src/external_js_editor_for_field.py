@@ -23,9 +23,16 @@ along with this add-on.  If not, see <https://www.gnu.org/licenses/>.
 
 
 
-This add-on bundles "TinyMCE" in the folder web/tinymce
+This add-on bundles "TinyMCE4" in the folder web/tinymce4
     Copyright (c) Tiny Technologies, Inc.
-    "TinyMCE" was downloaded from http://download.tiny.cloud/tinymce/community/tinymce_4.9.8.zip
+    "TinyMCE" was downloaded from http://download.tiny.cloud/tinymce/community/tinymce_4.9.11.zip
+    "TinyMCE" contains web/tinymce4/js/tinymce/license.txt
+    "TinyMCE" is licensed as LPGL 2.1 (or later)
+
+
+This add-on bundles "TinyMCE5" in the folder web/tinymce5
+    Copyright (c) Tiny Technologies, Inc.
+    "TinyMCE" was downloaded from http://download.tiny.cloud/tinymce/community/tinymce_5.4.0.zip
     "TinyMCE" contains web/tinymce5/js/tinymce/license.txt
     "TinyMCE" is licensed as LPGL 2.1 (or later)
 
