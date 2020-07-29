@@ -278,6 +278,7 @@ class ExtraWysiwygEditorForField(QDialog):
         super(ExtraWysiwygEditorForField, self).__init__(parent)
 
         self.jsSavecommand = jsSavecommand
+        self.parent = parent
         self.setWindowTitle(wintitle)
         self.resize(810, 700)
         restoreGeom(self, "805891399_winsize")
@@ -286,7 +287,7 @@ class ExtraWysiwygEditorForField(QDialog):
         mainLayout.setContentsMargins(0, 0, 0, 0)
         mainLayout.setSpacing(0)
         self.setLayout(mainLayout)
-        self.web = MyWebView(self)
+        self.web = MyWebView(self)  # maybe also self.parent?
         self.web.allowDrops = True   # default in webview/AnkiWebView is False
         self.web.title = dialogname
         self.web.contextMenuEvent = self.contextMenuEvent
