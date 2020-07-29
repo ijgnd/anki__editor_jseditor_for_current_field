@@ -451,6 +451,7 @@ def wysiwyg_dialog(editor, field, editorname):
             "SKIN": "moono-dark" if theme_manager.night_mode else "moono",
             "CONTENT": editor.note.fields[field],
             }
+    # editor.widget is self.form.fieldsArea which is a QWidget
     d = ExtraWysiwygEditorForField(editor.widget, bodyhtml, jssavecmd, wintitle, dialogname)
     # exec_() doesn't work, see  https://stackoverflow.com/questions/39638749/
     #d.finished.connect(editor.on_WYSIWYGdialog_finished)
