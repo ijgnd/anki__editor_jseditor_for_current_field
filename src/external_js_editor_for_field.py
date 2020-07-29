@@ -211,7 +211,7 @@ cssfiles = addon_cssfiles + other_cssfiles
 
 
 addon_jsfiles = []
-other_jsfiles = ["jquery.js",
+other_jsfiles = ["",
                  ]
 
 
