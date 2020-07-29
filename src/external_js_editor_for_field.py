@@ -310,7 +310,13 @@ class ExtraWysiwygEditorForField(QDialog):
         zoomOut_Shortcut = QShortcut(QKeySequence("Ctrl+-"), self)
         zoomOut_Shortcut.activated.connect(self.web.zoom_out)
 
-        self.web.stdHtml(bodyhtml, cssfiles, addon_jsfiles + other_jsfiles)
+        self.web.stdHtml(
+            body=bodyhtml,
+            css=cssfiles,
+            js=addon_jsfiles + other_jsfiles,
+            head="",
+            context=self
+        )
 
     def onAccept(self):
         global editedfieldcontent
