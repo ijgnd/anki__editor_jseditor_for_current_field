@@ -279,7 +279,7 @@ class MyDialog(QDialog):
 
         self.jsSavecommand = jsSavecommand
         self.setWindowTitle(wintitle)
-        self.resize(810, 1100)
+        self.resize(810, 700)
         restoreGeom(self, "805891399_winsize")
 
         mainLayout = QVBoxLayout()
