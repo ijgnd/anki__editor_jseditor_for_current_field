@@ -273,9 +273,9 @@ class MyWebView(AnkiWebView):
         return False
 
 
-class MyDialog(QDialog):
+class ExtraWysiwygEditorForField(QDialog):
     def __init__(self, parent, bodyhtml, jsSavecommand, wintitle, dialogname):
-        super(MyDialog, self).__init__(parent)
+        super(ExtraWysiwygEditorForField, self).__init__(parent)
 
         self.jsSavecommand = jsSavecommand
         self.setWindowTitle(wintitle)
@@ -451,7 +451,7 @@ def wysiwyg_dialog(editor, field, editorname):
             "SKIN": "moono-dark" if theme_manager.night_mode else "moono",
             "CONTENT": editor.note.fields[field],
             }
-    d = MyDialog(None, bodyhtml, jssavecmd, wintitle, dialogname)
+    d = ExtraWysiwygEditorForField(None, bodyhtml, jssavecmd, wintitle, dialogname)
     # exec_() doesn't work, see  https://stackoverflow.com/questions/39638749/
     #d.finished.connect(editor.on_WYSIWYGdialog_finished)
     d.finished.connect(lambda status, func=on_WYSIWYGdialog_finished, e=editor: func(e, status))
