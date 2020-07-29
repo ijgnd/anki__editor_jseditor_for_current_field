@@ -51,8 +51,13 @@ menubar : 'edit insert view format table help',
 removed_menuitems: 'codeformat print image templates media'  ,  // https://www.tiny.cloud/docs/configure/editor-appearance/#removed_menuitems
 toolbar1: 'undo redo | fontselect formatselect | alignleft aligncenter alignright alignjustify | link unlink | image charmap cleanup | nextCloze sameCloze ClozeOverlapper code codesample',  // footnotes fontsizeselect
 toolbar2: 'bold italic underline strikethrough superscript subscript forecolor backcolor removeformat | hiliteYellow hiliteGreen hiliteBlue hiliteRed | hr blockquote | numlist bullist | outdent indent | table',
-contextmenu: "link inserttable | cell row column deletetable", 
-
+contextmenu: "link inserttable | cell row column deletetable",
+// about fontsizeselect:
+// the following doesn't adjust the default font size, it's still 20px which I set
+// below with editor.on this.getDoc().body.style.fontSize ... and setting
+// the body.style.fontSize to 1em works but then the font in the editor is too small ...
+// also see https://stackoverflow.com/questions/60676490/tinymce-v5-set-font-selector-default-size from 2020-05
+// fontsize_formats: "0.7em 0.8em 0.9em 1em 1.2em 1.5em 1.9em 2.4em", // "8pt 10pt 12pt 14pt 18pt 24pt 36pt"
 
 //https://www.tiny.cloud/docs/advanced/editor-command-identifiers/
 setup: function(editor) {
