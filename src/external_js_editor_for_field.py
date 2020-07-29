@@ -315,7 +315,7 @@ class ExtraWysiwygEditorForField(QDialog):
     def onAccept(self):
         global editedfieldcontent
         editedfieldcontent = self.web.sync_execJavaScript(self.jsSavecommand)
-        self.web = None  # doesn't remove?
+        self.web = None
         # self.web._page.windowCloseRequested()  # native qt signal not callable
         # self.web._page.windowCloseRequested.connect(self.web._page.window_close_requested)
         saveGeom(self, "805891399_winsize")
@@ -326,11 +326,13 @@ class ExtraWysiwygEditorForField(QDialog):
         ok = askUser("Close and lose current input?")
         if ok:
             saveGeom(self, "805891399_winsize")
+            self.web = None
             self.reject()
 
     def closeEvent(self, event):
         ok = askUser("Close and lose current input?")
         if ok:
+            self.web = None
             event.accept()
         else:
             event.ignore()
