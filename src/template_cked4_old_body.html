@@ -66,6 +66,8 @@ CKEDITOR.replace('cked4_editor', {
             */
             // this.document.appendStyleSheet('../ckeditor4.css');  // relative doesn't work for me
             this.document.appendStyleSheet('%(WEBPATH)sckeditor4.css');
+            this.document.appendStyleSheet('%(BASEURL)s_editor.css');
+            this.document.appendStyleSheet('%(BASEURL)s_editor_button_styles.css');
         },
     }
 });
